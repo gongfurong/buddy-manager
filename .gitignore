@@ -1,0 +1,16 @@
+# Personal config — contains account UUID, exe hash, local preferences
+buddy_config.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Backup files
+*.bak
+*.bak2
+
+# OS
+.DS_Store
+Thumbs.db
