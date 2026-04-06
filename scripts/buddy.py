@@ -1575,7 +1575,9 @@ def cmd_setup(args):
         f.write(LINES)
     rc_name = os.path.basename(target_rc)
     print(f"✓ Added buddy-manager alias to ~/{rc_name}")
-    print(f"  Run 'source ~/{rc_name}' or restart your terminal to apply.")
+    print(f"  To apply now without restarting your terminal:")
+    print(f"    In Claude Code:  ! source ~/{rc_name}")
+    print(f"    In terminal:     source ~/{rc_name}")
 
 
 def cmd_cfgsync(args):
@@ -2454,7 +2456,7 @@ def cmd_interactive(_args=None):
         buf.append(('\033[90m' + bar + '\033[0m') if color else bar)
 
         # Hint (left) + update progress (right) on the same line
-        hint_plain = '  ↑↓ species   Tab switch focus   ←→ navigate   Enter confirm   q quit'
+        hint_plain = '  ↑↓ species   Tab switch focus   ←→ navigate   Enter confirm   c copy status   q quit'
         upd_plain  = S.get('update_status', '')
         total_w    = LEFT_W + DIV_W + _card_width() + 2
         if upd_plain:
@@ -2694,6 +2696,8 @@ def cmd_interactive(_args=None):
                     run_action = 'patch'
                 elif lo == 'm':
                     run_action = 'mute'
+                elif lo == 'c':
+                    run_action = 'copy_status'
 
             # ── Execute action ────────────────────────────────────────
             # Clear confirmations if user does something else
@@ -2802,11 +2806,26 @@ def cmd_interactive(_args=None):
                         if not os.environ.get('ANTHROPIC_API_KEY'):
                             S['status'] = '✗ ANTHROPIC_API_KEY not set'
                         else:
+                            _anth_ok = True
                             try:
                                 import anthropic as _anth_check  # noqa
                             except ImportError:
-                                S['status'] = '✗ Missing dependency: pip install anthropic'
-                            else:
+                                _anth_ok = False
+                                S['status'] = 'Installing anthropic... please wait'
+                                _draw(S['frame'])
+                                _r = subprocess.run(
+                                    [sys.executable, '-m', 'pip', 'install', 'anthropic', '-q'],
+                                    capture_output=True, text=True
+                                )
+                                if _r.returncode != 0:
+                                    S['status'] = '✗ pip install anthropic failed — run manually'
+                                else:
+                                    try:
+                                        import anthropic as _anth_check  # noqa
+                                        S['status'] = '✓ anthropic installed. Press [A] to start update.'
+                                    except ImportError:
+                                        S['status'] = '✗ Install succeeded but import failed — restart TUI'
+                            if _anth_ok:
                                 _uuid = get_account_uuid()
                                 if not _uuid:
                                     S['status'] = '✗ Cannot read account UUID'
@@ -3006,7 +3025,33 @@ def cmd_interactive(_args=None):
                                 print('  Claude has been closed.')
                                 print('  To resume:  claude --continue')
                                 print('\u2500' * 45)
+                        try:
+                            input('\nPress Enter to close...')
+                        except (EOFError, KeyboardInterrupt):
+                            pass
                         return
+
+            elif run_action == 'copy_status':
+                text = S.get('status') or S.get('update_status') or ''
+                if text:
+                    try:
+                        if sys.platform == 'win32':
+                            subprocess.run(['clip'], input=text, text=True,
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        elif sys.platform == 'darwin':
+                            subprocess.run(['pbcopy'], input=text, text=True,
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        else:
+                            for cmd in (['xclip', '-selection', 'clipboard'], ['xsel', '--clipboard', '--input']):
+                                if subprocess.run(['which', cmd[0]], capture_output=True).returncode == 0:
+                                    subprocess.run(cmd, input=text, text=True,
+                                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                    break
+                        S['status'] = f'\u2713 Copied: {text[:60]}'
+                    except Exception:
+                        S['status'] = 'Copy failed — clipboard not available'
+                else:
+                    S['status'] = 'Nothing to copy'
 
             elif run_action == 'mute':
                 new_muted = not S['muted']
