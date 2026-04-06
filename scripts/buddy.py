@@ -659,29 +659,72 @@ def is_bones_swap_patched(exe_path):
     ))
 
 
-def patch_bones_swap(exe_path):
+def patch_bones_swap(exe_path, version_changed=False):
     """
-    One-time patch: swap { ...H, ...$ } → { ...$, ...H } in the _I() companion function.
-    Only the 2 occurrences inside _I() are changed (context-verified).
-    Returns (True, patched_path) or (False, error_msg).
+    Patch: swap { ...H, ...$ } → { ...$, ...H } in the _I() companion function.
+
+    Source selection:
+      version_changed=True  → use exe (fresh official); overwrite .bak with new version
+      version_changed=False → use .bak; if .bak is already patched, fall back to exe
+
+    If source is already patched:
+      source is .bak → copy to .patched (exe still needs replacing)
+      source is exe  → exe is already correct; return sentinel so caller skips copy
+
+    .bak is never deleted.
+    Returns (True, patched_path) or (True, 'EXE_ALREADY_OK') or (False, error_msg).
     """
+    import shutil as _sh
+    bak_path = exe_path + '.bak'
+
+    # ── Determine source ─────────────────────────────────────────────────
+    if version_changed:
+        # New Claude version: exe is the fresh official binary
+        try:
+            _sh.copy2(exe_path, bak_path)   # update .bak to new version
+        except OSError as e:
+            return False, f"Failed to update backup {bak_path}: {e}"
+        src_path = exe_path
+    else:
+        # Same version: prefer .bak; create it if missing
+        if not os.path.exists(bak_path):
+            try:
+                _sh.copy2(exe_path, bak_path)
+            except OSError as e:
+                return False, f"Failed to create backup {bak_path}: {e}"
+        src_path = bak_path
+
+    # ── Read source ───────────────────────────────────────────────────────
     try:
-        with open(exe_path, 'rb') as f:
+        with open(src_path, 'rb') as f:
             data = f.read()
     except OSError as e:
         return False, str(e)
 
-    if _BONES_OLD not in data:
-        if _BONES_NEW in data:
-            return False, "already patched (bones-swap)"
-        return False, f"pattern {_BONES_OLD!r} not found in exe"
+    # ── If .bak is already patched, fall back to exe ──────────────────────
+    if _BONES_OLD not in data and src_path == bak_path:
+        try:
+            with open(exe_path, 'rb') as f:
+                data = f.read()
+            src_path = exe_path
+        except OSError as e:
+            return False, str(e)
 
-    new_data = data.replace(_BONES_OLD, _BONES_NEW)
+    # ── Apply or detect already-patched ───────────────────────────────────
+    if _BONES_OLD in data:
+        new_data = data.replace(_BONES_OLD, _BONES_NEW)
+    elif _BONES_NEW in data:
+        if src_path == exe_path:
+            # exe is already correctly patched — nothing to copy
+            return True, 'EXE_ALREADY_OK'
+        new_data = data   # .bak is patched — copy it to .patched to replace exe
+    else:
+        return False, f"pattern not found in {src_path}"
+
     patched_path = exe_path + '.patched'
     with open(patched_path, 'wb') as f:
         f.write(new_data)
 
-    n = data.count(_BONES_OLD)
     return True, patched_path
 
 
@@ -2962,25 +3005,28 @@ def cmd_interactive(_args=None):
                         (cur_ver and stored_ver and cur_ver == stored_ver) or
                         (not cur_ver and stored_hash and cur_hash == stored_hash)
                     )
+                    do_patch    = False
+                    ver_changed = False
+                    reason      = ''
                     if patched_now and ver_match:
-                        # Already patched for this exact version
                         if not S.get('_patch_confirm'):
                             label = cur_ver or (cur_hash[:8] + '...')
                             S['_patch_confirm'] = True
                             S['status'] = f'Already patched (v{label}). Press [P] again to re-patch.'
                         else:
-                            # Confirmed re-patch: exe already has bones-swap, just refresh record
                             S['_patch_confirm'] = False
-                            save_patch_record(version=cur_ver, hash_val=cur_hash)
-                            S['status'] = '\u2713 Record refreshed. Exe unchanged (bones-swap already active).'
+                            do_patch    = True
+                            ver_changed = False   # same version — patch from .bak
+                            reason      = 're-patch (same version)'
                     else:
-                        # Need to patch (first time or new Claude version)
                         S['_patch_confirm'] = False
-                        reason = ''
+                        do_patch    = True
+                        ver_changed = not patched_now or not ver_match
                         if not patched_now:
                             reason = 'first time' if not stored_ver else 'Claude was updated'
                         elif not ver_match:
                             reason = 'version mismatch \u2014 re-patching'
+                    if do_patch:
                         _stop_anim()
                         out.write(ALT_OFF + MOUSE_OFF)
                         out.flush()
@@ -2990,24 +3036,22 @@ def cmd_interactive(_args=None):
                         _kill_claude()
                         import time as _t2; _t2.sleep(0.8)
                         print('Applying bones-swap patch...')
-                        ok, result = patch_bones_swap(exe)
-                        if not ok and result == 'already patched (bones-swap)':
-                            # Exe is already correctly patched — just update the record
-                            ok = True
-                            result = exe
-                            print('\u2713 Exe already patched — updating version record.')
+                        ok, result = patch_bones_swap(exe, version_changed=ver_changed)
                         if not ok:
                             print(f'\u2717 Patch failed: {result}')
                         else:
                             import shutil as _sh
-                            patched_file = exe + '.patched'
-                            if os.path.exists(patched_file):
-                                try:
-                                    _sh.move(patched_file, exe)
-                                    print('\u2713 claude.exe replaced.')
-                                except OSError as e:
-                                    print(f'\u2717 Failed to replace exe: {e}')
-                                    ok = False
+                            if result == 'EXE_ALREADY_OK':
+                                print('\u2713 Exe already correctly patched.')
+                            else:
+                                patched_file = exe + '.patched'
+                                if os.path.exists(patched_file):
+                                    try:
+                                        _sh.move(patched_file, exe)
+                                        print('\u2713 claude.exe replaced.')
+                                    except OSError as e:
+                                        print(f'\u2717 Failed to replace exe: {e}')
+                                        ok = False
                             if ok:
                                 save_patch_record(version=cur_ver, hash_val=cur_hash)
                                 label = cur_ver or (cur_hash[:8] + '...')
