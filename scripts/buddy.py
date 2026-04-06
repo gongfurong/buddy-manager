@@ -426,7 +426,7 @@ def save_config(cfg):
     """Write config to disk, stamping last_updated."""
     import datetime
     cfg.setdefault('_meta', {})
-    cfg['_meta']['last_updated'] = datetime.datetime.utcnow().isoformat() + 'Z'
+    cfg['_meta']['last_updated'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
         json.dump(cfg, f, indent=2, ensure_ascii=False)
 
@@ -2929,7 +2929,7 @@ def cmd_interactive(_args=None):
 
                             cfg['official'].sort(key=lambda x: x['id'])
                             cfg['_meta']['account_uuid']   = _uuid
-                            cfg['_meta']['data_updated_at'] = _dt.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+                            cfg['_meta']['data_updated_at'] = _dt.datetime.now(_dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
                             cfg_renumber(cfg)
                             save_config(cfg)
 
@@ -2991,6 +2991,11 @@ def cmd_interactive(_args=None):
                         import time as _t2; _t2.sleep(0.8)
                         print('Applying bones-swap patch...')
                         ok, result = patch_bones_swap(exe)
+                        if not ok and result == 'already patched (bones-swap)':
+                            # Exe is already correctly patched — just update the record
+                            ok = True
+                            result = exe
+                            print('\u2713 Exe already patched — updating version record.')
                         if not ok:
                             print(f'\u2717 Patch failed: {result}')
                         else:
