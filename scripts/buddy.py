@@ -1089,14 +1089,10 @@ _BUDDY_SYSTEM = (
 )
 
 def generate_personality(bones):
-    """Call Claude API with the real exe system prompt. Returns {name, personality} or None."""
-    import os, json as _json
+    """Call Claude API via urllib (no extra dependencies). Returns {name, personality} or None."""
+    import os, json as _json, urllib.request, urllib.error
     api_key = os.environ.get('ANTHROPIC_API_KEY')
     if not api_key:
-        return None
-    try:
-        import anthropic
-    except ImportError:
         return None
     stats_str = ' '.join(f'{k}:{v}' for k, v in bones['stats'].items())
     words     = bones.get('inspiration_words', [])
@@ -1109,21 +1105,32 @@ def generate_personality(bones):
         f"Inspiration words: {', '.join(words)}\n"
         f"{shiny_ln}\nMake it memorable and distinct."
     )
+    payload = _json.dumps({
+        'model':      'claude-haiku-4-5-20251001',
+        'max_tokens': 256,
+        'temperature': 1,
+        'system':     _BUDDY_SYSTEM,
+        'messages':   [{'role': 'user', 'content': user_msg}],
+    }).encode()
+    req = urllib.request.Request(
+        'https://api.anthropic.com/v1/messages',
+        data=payload,
+        headers={
+            'x-api-key':         api_key,
+            'anthropic-version': '2023-06-01',
+            'content-type':      'application/json',
+        },
+        method='POST',
+    )
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        resp   = client.messages.create(
-            model='claude-haiku-4-5-20251001',
-            max_tokens=256,
-            temperature=1,
-            system=_BUDDY_SYSTEM,
-            messages=[{'role': 'user', 'content': user_msg}],
-        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = _json.loads(resp.read())
         import re as _re
-        text = resp.content[0].text.strip()
+        text = data['content'][0]['text'].strip()
         text = _re.sub(r'^```[a-z]*\n?', '', text)
         text = _re.sub(r'\n?```$', '', text).strip()
-        data = _json.loads(text)
-        return {'name': data.get('name', ''), 'personality': data.get('personality', '')}
+        result = _json.loads(text)
+        return {'name': result.get('name', ''), 'personality': result.get('personality', '')}
     except Exception:
         return None
 
@@ -1167,12 +1174,6 @@ def cmd_update_pers(args, force=False):
     if not os.environ.get('ANTHROPIC_API_KEY'):
         print("ERROR: ANTHROPIC_API_KEY not set")
         return False
-    try:
-        import anthropic  # noqa
-    except ImportError:
-        print("ERROR: pip install anthropic")
-        return False
-
     account_uuid = get_account_uuid()
     if not account_uuid:
         print("ERROR: could not find account UUID")
@@ -2061,9 +2062,9 @@ def _enter_mouse_mode():
     mode = ctypes.c_ulong()
     k32.GetConsoleMode(h, ctypes.byref(mode))
     _saved_console_mode = mode.value
-    ENABLE_QUICK_EDIT_MODE = 0x0040
-    ENABLE_MOUSE_INPUT     = 0x0010
-    k32.SetConsoleMode(h, (_saved_console_mode | ENABLE_MOUSE_INPUT) & ~ENABLE_QUICK_EDIT_MODE)
+    ENABLE_MOUSE_INPUT = 0x0010
+    # Keep Quick Edit enabled so mouse drag still selects text; single clicks still generate events
+    k32.SetConsoleMode(h, _saved_console_mode | ENABLE_MOUSE_INPUT)
 
 
 def _exit_mouse_mode():
@@ -2806,26 +2807,6 @@ def cmd_interactive(_args=None):
                         if not os.environ.get('ANTHROPIC_API_KEY'):
                             S['status'] = '✗ ANTHROPIC_API_KEY not set'
                         else:
-                            _anth_ok = True
-                            try:
-                                import anthropic as _anth_check  # noqa
-                            except ImportError:
-                                _anth_ok = False
-                                S['status'] = 'Installing anthropic... please wait'
-                                _draw(S['frame'])
-                                _r = subprocess.run(
-                                    [sys.executable, '-m', 'pip', 'install', 'anthropic', '-q'],
-                                    capture_output=True, text=True
-                                )
-                                if _r.returncode != 0:
-                                    S['status'] = '✗ pip install anthropic failed — run manually'
-                                else:
-                                    try:
-                                        import anthropic as _anth_check  # noqa
-                                        S['status'] = '✓ anthropic installed. Press [A] to start update.'
-                                    except ImportError:
-                                        S['status'] = '✗ Install succeeded but import failed — restart TUI'
-                            if _anth_ok:
                                 _uuid = get_account_uuid()
                                 if not _uuid:
                                     S['status'] = '✗ Cannot read account UUID'
