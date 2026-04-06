@@ -659,71 +659,58 @@ def is_bones_swap_patched(exe_path):
     ))
 
 
-def patch_bones_swap(exe_path, version_changed=False):
+def patch_bones_swap(exe_path):
     """
     Patch: swap { ...H, ...$ } → { ...$, ...H } in the _I() companion function.
 
-    Source selection:
-      version_changed=True  → use exe (fresh official); overwrite .bak with new version
-      version_changed=False → use .bak; if .bak is already patched, fall back to exe
+    .bak management (exe_path + '.bak'):
+      - No .bak → create from exe
+      - .bak exists but differs from exe (new Claude version) → update .bak from exe
+      - .bak matches exe → use as-is
 
-    If source is already patched:
-      source is .bak → copy to .patched (exe still needs replacing)
-      source is exe  → exe is already correct; return sentinel so caller skips copy
-
-    .bak is never deleted.
-    Returns (True, patched_path) or (True, 'EXE_ALREADY_OK') or (False, error_msg).
+    Always patches from .bak → writes exe_path + '.patched'.
+    Returns (True, patched_path) or (False, error_msg).
     """
-    import shutil as _sh
+    import shutil as _sh, hashlib
+
     bak_path = exe_path + '.bak'
 
-    # ── Determine source ─────────────────────────────────────────────────
-    if version_changed:
-        # New Claude version: exe is the fresh official binary
-        try:
-            _sh.copy2(exe_path, bak_path)   # update .bak to new version
-        except OSError as e:
-            return False, f"Failed to update backup {bak_path}: {e}"
-        src_path = exe_path
-    else:
-        # Same version: prefer .bak; create it if missing
-        if not os.path.exists(bak_path):
-            try:
-                _sh.copy2(exe_path, bak_path)
-            except OSError as e:
-                return False, f"Failed to create backup {bak_path}: {e}"
-        src_path = bak_path
+    def _hash(path):
+        h = hashlib.sha256()
+        with open(path, 'rb') as f:
+            for chunk in iter(lambda: f.read(65536), b''):
+                h.update(chunk)
+        return h.hexdigest()
 
-    # ── Read source ───────────────────────────────────────────────────────
+    # ── Keep .bak in sync with exe ────────────────────────────────────────
     try:
-        with open(src_path, 'rb') as f:
+        if not os.path.exists(bak_path):
+            _sh.copy2(exe_path, bak_path)
+        elif _hash(exe_path) != _hash(bak_path):
+            _sh.copy2(exe_path, bak_path)   # exe changed (Claude updated) → refresh .bak
+    except OSError as e:
+        return False, f"Failed to maintain backup: {e}"
+
+    # ── Patch from .bak ───────────────────────────────────────────────────
+    try:
+        with open(bak_path, 'rb') as f:
             data = f.read()
     except OSError as e:
         return False, str(e)
 
-    # ── If .bak is already patched, fall back to exe ──────────────────────
-    if _BONES_OLD not in data and src_path == bak_path:
-        try:
-            with open(exe_path, 'rb') as f:
-                data = f.read()
-            src_path = exe_path
-        except OSError as e:
-            return False, str(e)
-
-    # ── Apply or detect already-patched ───────────────────────────────────
     if _BONES_OLD in data:
         new_data = data.replace(_BONES_OLD, _BONES_NEW)
     elif _BONES_NEW in data:
-        if src_path == exe_path:
-            # exe is already correctly patched — nothing to copy
-            return True, 'EXE_ALREADY_OK'
-        new_data = data   # .bak is patched — copy it to .patched to replace exe
+        new_data = data   # .bak already patched — copy as-is so exe gets replaced
     else:
-        return False, f"pattern not found in {src_path}"
+        return False, f"patch pattern not found in {bak_path}"
 
     patched_path = exe_path + '.patched'
-    with open(patched_path, 'wb') as f:
-        f.write(new_data)
+    try:
+        with open(patched_path, 'wb') as f:
+            f.write(new_data)
+    except OSError as e:
+        return False, f"Failed to write patched file: {e}"
 
     return True, patched_path
 
@@ -3005,66 +2992,92 @@ def cmd_interactive(_args=None):
                         (cur_ver and stored_ver and cur_ver == stored_ver) or
                         (not cur_ver and stored_hash and cur_hash == stored_hash)
                     )
-                    do_patch    = False
-                    ver_changed = False
-                    reason      = ''
-                    if patched_now and ver_match:
+                    do_patch = False
+                    reason   = ''
+                    if ver_match:
                         if not S.get('_patch_confirm'):
                             label = cur_ver or (cur_hash[:8] + '...')
                             S['_patch_confirm'] = True
                             S['status'] = f'Already patched (v{label}). Press [P] again to re-patch.'
                         else:
                             S['_patch_confirm'] = False
-                            do_patch    = True
-                            ver_changed = False   # same version — patch from .bak
-                            reason      = 're-patch (same version)'
+                            do_patch = True
+                            reason   = 're-patch (same version)'
                     else:
                         S['_patch_confirm'] = False
-                        do_patch    = True
-                        ver_changed = not patched_now or not ver_match
-                        if not patched_now:
-                            reason = 'first time' if not stored_ver else 'Claude was updated'
-                        elif not ver_match:
-                            reason = 'version mismatch \u2014 re-patching'
+                        do_patch = True
+                        reason   = 'first time' if not stored_ver else 'Claude updated'
                     if do_patch:
                         _stop_anim()
                         out.write(ALT_OFF + MOUSE_OFF)
                         out.flush()
                         _exit_mouse_mode()
-                        print(f'\n\u2500\u2500 Buddy Patch ({reason}) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500')
-                        print('Closing all Claude instances...')
-                        _kill_claude()
-                        import time as _t2; _t2.sleep(0.8)
-                        print('Applying bones-swap patch...')
-                        ok, result = patch_bones_swap(exe, version_changed=ver_changed)
+                        GRN = '\033[32m' if color else ''
+                        YLW = '\033[33m' if color else ''
+                        RED = '\033[31m' if color else ''
+                        RST = '\033[0m'  if color else ''
+                        DIM = '\033[90m' if color else ''
+
+                        def _prt(s='', c=''):
+                            out.write((c + s + RST if c else s) + '\n')
+                            out.flush()
+
+                        _prt(f'\n{DIM}\u2500\u2500 Buddy Patch ({reason}) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500')
+                        _prt('Applying bones-swap patch...')
+                        ok, result = patch_bones_swap(exe)
                         if not ok:
-                            print(f'\u2717 Patch failed: {result}')
+                            _prt(f'\u2717 Patch failed: {result}', RED)
+                            S['status'] = f'\u2717 Patch failed: {result}'
                         else:
                             import shutil as _sh
-                            if result == 'EXE_ALREADY_OK':
-                                print('\u2713 Exe already correctly patched.')
-                            else:
-                                patched_file = exe + '.patched'
-                                if os.path.exists(patched_file):
-                                    try:
-                                        _sh.move(patched_file, exe)
-                                        print('\u2713 claude.exe replaced.')
-                                    except OSError as e:
-                                        print(f'\u2717 Failed to replace exe: {e}')
-                                        ok = False
+                            _prt('Closing all Claude instances...', YLW)
+                            _kill_claude()
+                            import time as _t2; _t2.sleep(0.8)
+                            patched_file = exe + '.patched'
+                            if os.path.exists(patched_file):
+                                try:
+                                    _sh.move(patched_file, exe)
+                                    _prt('\u2713 claude.exe replaced.', GRN)
+                                except OSError as e:
+                                    _prt(f'\u2717 Failed to replace exe: {e}', RED)
+                                    ok = False
                             if ok:
                                 save_patch_record(version=cur_ver, hash_val=cur_hash)
                                 label = cur_ver or (cur_hash[:8] + '...')
-                                print(f'\u2713 Patch applied (v{label}).')
-                                print()
-                                print('  Claude has been closed.')
-                                print('  To resume:  claude --continue')
-                                print('\u2500' * 45)
+                                _prt(f'\u2713 Patch applied (v{label}).', GRN)
+                                _prt()
+                                _prt('  Claude has been closed. To resume:', DIM)
+                                _prt('    claude --continue    \u2190 continue last conversation', DIM)
+                                _prt('    claude               \u2190 start a new conversation', DIM)
+                                S['status'] = f'\u2713 Patch applied (v{label}). Run: claude --continue'
+                            else:
+                                S['status'] = '\u2717 Patch failed — see above'
+                        # Wait for any key, then return to TUI
+                        _prt('\nPress any key to return...', DIM)
                         try:
-                            input('\nPress Enter to close...')
-                        except (EOFError, KeyboardInterrupt):
+                            if sys.platform == 'win32':
+                                import msvcrt as _ms, ctypes as _ct
+                                # Flush buffered input (mouse clicks, queued keys) before waiting
+                                _ct.windll.kernel32.FlushConsoleInputBuffer(
+                                    _ct.windll.kernel32.GetStdHandle(-10)
+                                )
+                                import time as _tw; _tw.sleep(0.05)
+                                _ms.getwch()
+                            else:
+                                import tty as _tty, termios as _ter
+                                _fd = sys.stdin.fileno()
+                                _old = _ter.tcgetattr(_fd)
+                                try:
+                                    _tty.setraw(_fd)
+                                    sys.stdin.read(1)
+                                finally:
+                                    _ter.tcsetattr(_fd, _ter.TCSADRAIN, _old)
+                        except Exception:
                             pass
-                        return
+                        _enter_mouse_mode()
+                        out.write(ALT_ON + MOUSE_ON)
+                        out.flush()
+                        need_refresh = True
 
             elif run_action == 'copy_status':
                 text = S.get('status') or S.get('update_status') or ''

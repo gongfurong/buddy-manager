@@ -54,18 +54,26 @@ python scripts/buddy.py setup     ← 初始化 ~/.bashrc alias
 
 在 TUI 中按 `[P] Patch`：
 ```
-检查版本记录
-  → 版本不匹配 / 无记录（Claude 更新或首次）
-      → 关闭 Claude → exe 覆盖 .bak（更新备份）→ patch exe → 替换 → 更新记录
-  → 版本匹配（同版本重复 patch，需二次确认）
-      → 关闭 Claude → 从 .bak patch → 替换 exe → 更新记录
-      → 若 .bak 已 patched → 回退用 exe；exe 也已 patched → 直接更新记录
+1. 比较记录版本 vs 当前 exe 版本
+   → 不一致 / 无记录 → 进入 patch
+   → 一致 → 提示"已是最新"，再按一次 [P] 可强制 re-patch
 
-.bak 文件（claude.exe.bak / claude.bak）：
-  → 首次 patch 时自动从原始 exe 创建，永不删除
-  → 版本匹配时作为 patch 源（保证干净的原始字节）
-  → Claude 更新后被新版本覆盖
+2. Patch 过程
+   → 检查 .bak 是否存在：没有则从 exe 创建
+   → .bak 与 exe 版本不同（Claude 更新）→ 用 exe 更新 .bak
+   → 以 .bak 为源打 patch → 生成 .patched
+     （.bak 若已是 patched 状态则直接复制）
+
+3. 应用 patch
+   → 退出所有 Claude 进程
+   → .patched 覆盖 exe
+   → 更新版本记录
 ```
+
+`.bak` 文件（`claude.exe.bak` / `claude.bak`）：
+- 首次 patch 时自动创建，永不删除
+- 始终保持与当前 exe 版本同步
+- 是所有 patch 操作的干净源
 
 ### 正常切换（bones-swap 已激活）
 

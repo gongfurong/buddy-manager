@@ -7,14 +7,14 @@ description: Manage Claude Code buddy companion — switch species/rarity, renam
 
 When the user invokes `/buddy-manager`, launch the interactive TUI in a dedicated window.
 
-**Script path:** `C:/Users/gfr-pc/.claude/skills/buddy-manager/scripts/buddy.py`
+**Script path:** `<SCRIPTS_DIR>/buddy.py`
 
 ---
 
 ## First-time setup (if terminal alias not yet configured)
 
 ```bash
-python "C:/Users/gfr-pc/.claude/skills/buddy-manager/scripts/buddy.py" setup
+python "<SCRIPTS_DIR>/buddy.py" setup
 ```
 
 This updates `skill.md` paths for this machine, adds `alias buddy-manager=...` (and `export PYTHONUTF8=1` on Windows) to `~/.bashrc`. After running, user must `source ~/.bashrc`.
@@ -25,12 +25,12 @@ This updates `skill.md` paths for this machine, adds `alias buddy-manager=...` (
 
 **Windows** — Run via Bash tool:
 ```
-powershell.exe -File "C:/Users/gfr-pc/.claude/skills/buddy-manager/scripts/launch_buddy.ps1"
+powershell.exe -File "<SCRIPTS_DIR>/launch_buddy.ps1"
 ```
 
 **Mac/Linux** — Run via Bash tool:
 ```
-bash "C:/Users/gfr-pc/.claude/skills/buddy-manager/scripts/launch_buddy.sh"
+bash "<SCRIPTS_DIR>/launch_buddy.sh"
 ```
 
 Both scripts check for an existing "Buddy Manager" window first:
