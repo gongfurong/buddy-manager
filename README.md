@@ -113,11 +113,11 @@ Claude Code 对 `.claude.json` 有**文件监听**，`companion` 字段变化后
 
 ### Singleton 检测
 
-TUI 启动时调用 `FindWindowW(None, 'Buddy Manager')`：
-- 找到已有窗口 → 聚焦它，立即退出（不启动新实例）
-- 没有 → 用 `SetConsoleTitleW('Buddy Manager')` 标记当前窗口，正常启动
+启动脚本（`launch_buddy.ps1` / `launch_buddy.sh`）在打开新窗口前先检查是否已有 "Buddy Manager" 窗口：
+- 找到已有窗口 → 聚焦它，不开新窗口
+- 没有 → 新开终端窗口运行 buddy.py
 
-`launch_buddy.ps1` 也在 `Start-Process` 之前做同样检查，避免打开多余窗口。
+Windows 上 buddy.py 还会调用 `FindWindowW` 做二次检测；Mac/Linux 依赖启动脚本检测。
 
 ---
 

@@ -314,7 +314,10 @@ def find_exe():
             os.path.expanduser('~/.local/bin/claude'),
             '/usr/local/bin/claude',
             '/usr/bin/claude',
-            os.path.expanduser('~/.nvm/versions/node/v24.14.0/bin/claude'),
+            # Scan ~/.nvm for any installed node version
+            *([os.path.join(p, 'bin', 'claude')
+               for p in sorted(__import__('glob').glob(os.path.expanduser('~/.nvm/versions/node/*')), reverse=True)
+               if os.path.exists(os.path.join(p, 'bin', 'claude'))]),
         ]:
             if os.path.exists(p):
                 return p
@@ -763,26 +766,31 @@ def _find_claude_parent_pid():
     return None
 
 
-def simple_restart(_exe_path=None):
+def _kill_claude(pid=None):
+    """Kill claude process: by PID if given, otherwise by process name."""
+    import signal as _sig
+    try:
+        if sys.platform == 'win32':
+            if pid:
+                subprocess.run(['taskkill', '/F', '/PID', str(pid)],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                subprocess.run(['taskkill', '/F', '/IM', 'claude.exe'],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            if pid:
+                os.kill(pid, _sig.SIGTERM)
+            else:
+                subprocess.run(['pkill', '-x', 'claude'],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except (ProcessLookupError, OSError):
+        pass
+
+
+def simple_restart():
     """Kill only this Claude instance (bones-swap is active, .claude.json already updated)."""
-    import time, signal; time.sleep(0.2)
-    claude_pid = _find_claude_parent_pid()
-    if sys.platform == 'win32':
-        if claude_pid:
-            subprocess.run(['taskkill', '/F', '/PID', str(claude_pid)],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            subprocess.run(['taskkill', '/F', '/IM', 'claude.exe'],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    else:
-        if claude_pid:
-            try:
-                os.kill(claude_pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-        else:
-            subprocess.run(['pkill', '-x', 'claude'],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    import time; time.sleep(0.2)
+    _kill_claude(_find_claude_parent_pid())
 
 
 # ─────────────────────────────────────────────
@@ -1088,49 +1096,85 @@ _BUDDY_SYSTEM = (
     'Respond with valid JSON only: {"name": "...", "personality": "..."}'
 )
 
-def generate_personality(bones):
-    """Call Claude API via urllib (no extra dependencies). Returns {name, personality} or None."""
-    import os, json as _json, urllib.request, urllib.error
-    api_key = os.environ.get('ANTHROPIC_API_KEY')
-    if not api_key:
+def _find_claude_cli():
+    """Find the claude executable path."""
+    try:
+        result = subprocess.run(
+            ['where', 'claude'] if sys.platform == 'win32' else ['which', 'claude'],
+            capture_output=True, text=True
+        )
+        for line in result.stdout.strip().splitlines():
+            line = line.strip()
+            if line and os.path.exists(line):
+                return line
+    except Exception:
+        pass
+    return 'claude'
+
+
+def _find_git_bash():
+    """Find git bash on Windows for CLAUDE_CODE_GIT_BASH_PATH. Returns native Windows path or None."""
+    if sys.platform != 'win32':
         return None
+    # 1. Already set by user
+    if os.environ.get('CLAUDE_CODE_GIT_BASH_PATH'):
+        return os.environ['CLAUDE_CODE_GIT_BASH_PATH']
+    # 2. Derive from git executable location
+    try:
+        r = subprocess.run(['git', '--exec-path'], capture_output=True, text=True)
+        exec_path = r.stdout.strip()  # e.g. C:/Program Files/Git/mingw64/libexec/git-core
+        if exec_path:
+            import pathlib
+            p = pathlib.Path(exec_path)
+            # Walk up to find the Git root (contains bin/bash.exe)
+            for parent in p.parents:
+                bash = parent / 'bin' / 'bash.exe'
+                if bash.exists():
+                    return str(bash)
+    except Exception:
+        pass
+    # 3. Standard Windows install locations via env vars
+    for base_var in ('PROGRAMFILES', 'PROGRAMFILES(X86)', 'LOCALAPPDATA', 'APPDATA'):
+        base = os.environ.get(base_var, '')
+        if base:
+            candidate = os.path.join(base, 'Git', 'bin', 'bash.exe')
+            if os.path.exists(candidate):
+                return candidate
+    return None
+
+
+def generate_personality(bones):
+    """Generate name+personality via `claude -p` CLI. Returns {name, personality} or None."""
+    import json as _json, re as _re
     stats_str = ' '.join(f'{k}:{v}' for k, v in bones['stats'].items())
     words     = bones.get('inspiration_words', [])
-    shiny_ln  = 'SHINY variant \u2014 extra special.\n' if bones.get('shiny') else ''
-    user_msg  = (
+    shiny_ln  = 'SHINY variant \u2014 extra special. ' if bones.get('shiny') else ''
+    prompt    = (
+        f"{_BUDDY_SYSTEM}\n\n"
         f"Generate a companion.\n"
         f"Rarity: {bones['rarity'].upper()}\n"
         f"Species: {bones['species']}\n"
         f"Stats: {stats_str}\n"
         f"Inspiration words: {', '.join(words)}\n"
-        f"{shiny_ln}\nMake it memorable and distinct."
+        f"{shiny_ln}Make it memorable and distinct."
     )
-    payload = _json.dumps({
-        'model':      'claude-haiku-4-5-20251001',
-        'max_tokens': 256,
-        'temperature': 1,
-        'system':     _BUDDY_SYSTEM,
-        'messages':   [{'role': 'user', 'content': user_msg}],
-    }).encode()
-    req = urllib.request.Request(
-        'https://api.anthropic.com/v1/messages',
-        data=payload,
-        headers={
-            'x-api-key':         api_key,
-            'anthropic-version': '2023-06-01',
-            'content-type':      'application/json',
-        },
-        method='POST',
-    )
+    env = os.environ.copy()
+    if sys.platform == 'win32':
+        bash = _find_git_bash()
+        if bash:
+            env['CLAUDE_CODE_GIT_BASH_PATH'] = bash
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = _json.loads(resp.read())
-        import re as _re
-        text = data['content'][0]['text'].strip()
+        result = subprocess.run(
+            [_find_claude_cli(), '-p', prompt],
+            capture_output=True, text=True, timeout=60, env=env
+        )
+        text = result.stdout.strip()
+        if not text:
+            return None
         text = _re.sub(r'^```[a-z]*\n?', '', text)
         text = _re.sub(r'\n?```$', '', text).strip()
-        result = _json.loads(text)
-        return {'name': result.get('name', ''), 'personality': result.get('personality', '')}
+        data = _json.loads(text)
+        return {'name': data.get('name', ''), 'personality': data.get('personality', '')}
     except Exception:
         return None
 
@@ -1171,9 +1215,6 @@ def cmd_update_pers(args, force=False):
     else:
         print("[ Update System ]  --force: regenerating all entries")
 
-    if not os.environ.get('ANTHROPIC_API_KEY'):
-        print("ERROR: ANTHROPIC_API_KEY not set")
-        return False
     account_uuid = get_account_uuid()
     if not account_uuid:
         print("ERROR: could not find account UUID")
@@ -1188,9 +1229,6 @@ def cmd_update_pers(args, force=False):
 
     done = 0
     errors = 0
-
-    # Track which official entries we wrote (to detect old entries to migrate)
-    written_ids = set()
 
     for sp in SPECIES:
         for rar in RARITIES:
@@ -1258,7 +1296,6 @@ def cmd_update_pers(args, force=False):
                     cfg.setdefault('official', []).append(entry)
                 else:
                     existing.update(entry)
-            written_ids.add(official_id)
 
     # ── Migrate stale official entries to custom ───────────────────────
     valid_ids = {get_official_id(sp, rar) for sp in SPECIES for rar in RARITIES}
@@ -1809,10 +1846,17 @@ def cmd_unmute(args):
 
 
 def _is_claude_running():
-    """Return True if any claude.exe process is currently running."""
-    r = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq claude.exe'],
-                       capture_output=True, text=True, errors='replace')
-    return 'claude.exe' in r.stdout
+    """Return True if any claude process is currently running."""
+    try:
+        if sys.platform == 'win32':
+            r = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq claude.exe'],
+                               capture_output=True, text=True, errors='replace')
+            return 'claude.exe' in r.stdout
+        else:
+            r = subprocess.run(['pgrep', '-x', 'claude'], capture_output=True)
+            return r.returncode == 0
+    except Exception:
+        return False
 
 
 
@@ -1853,22 +1897,7 @@ def _do_switch(patched_path, exe_path):
         print(f"PATCH_READY:{exe_path}")
         sys.exit(0)
     else:
-        claude_pid = _find_claude_parent_pid()
-        import signal as _sig
-        if sys.platform == 'win32':
-            if claude_pid:
-                subprocess.run(['taskkill', '/F', '/PID', str(claude_pid)],
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            else:
-                subprocess.run(['taskkill', '/F', '/IM', 'claude.exe'],
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            if claude_pid:
-                try: os.kill(claude_pid, _sig.SIGTERM)
-                except ProcessLookupError: pass
-            else:
-                subprocess.run(['pkill', '-x', 'claude'],
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        _kill_claude(_find_claude_parent_pid())
         print("Claude closed. Patch will be applied automatically next time you open the buddy TUI.")
 
 
@@ -2081,37 +2110,6 @@ def _exit_mouse_mode():
     _close_conin_handle()
 
 
-def _flush_kb():
-    """Drain any buffered keypresses (call after input() to avoid phantom reads)."""
-    if sys.platform == 'win32':
-        import msvcrt, time
-        time.sleep(0.05)   # give buffer time to settle
-        while msvcrt.kbhit():
-            msvcrt.getwch()
-
-
-def _getch():
-    """Read a single keypress. Returns char or 'UP'/'DOWN'/'LEFT'/'RIGHT'."""
-    if sys.platform == 'win32':
-        import msvcrt
-        ch = msvcrt.getwch()
-        if ch in ('\x00', '\xe0'):
-            ch2 = msvcrt.getwch()
-            return {'H': 'UP', 'P': 'DOWN', 'K': 'LEFT', 'M': 'RIGHT'}.get(ch2)
-        return ch
-    else:
-        import tty, termios
-        fd = sys.stdin.fileno()
-        old = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            ch = sys.stdin.read(1)
-            if ch == '\x1b':
-                ch2 = sys.stdin.read(2)
-                return {'[A': 'UP', '[B': 'DOWN', '[D': 'LEFT', '[C': 'RIGHT'}.get(ch2)
-            return ch
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
 
@@ -2456,22 +2454,24 @@ def cmd_interactive(_args=None):
         buf.append('')
         buf.append(('\033[90m' + bar + '\033[0m') if color else bar)
 
-        # Hint (left) + update progress (right) on the same line
-        hint_plain = '  ↑↓ species   Tab switch focus   ←→ navigate   Enter confirm   c copy status   q quit'
+        # Second-to-last row: hints (left-aligned)
+        hint_plain = '  ↑↓ species   Tab rarity/action   ←→ navigate   Enter confirm   q quit'
+        buf.append(('\033[90m' + hint_plain + '\033[0m') if color else hint_plain)
+
+        # Last row: status (left) + update_status (right)
         upd_plain  = S.get('update_status', '')
+        status_str = S.get('status', '')
         total_w    = LEFT_W + DIV_W + _card_width() + 2
         if upd_plain:
-            pad = max(0, total_w - len(hint_plain) - len(upd_plain))
-            hint_line = (
-                ('\033[90m' + hint_plain + ' ' * pad + upd_plain + '\033[0m') if color
-                else (hint_plain + ' ' * pad + upd_plain)
-            )
-        else:
-            hint_line = ('\033[90m' + hint_plain + '\033[0m') if color else hint_plain
-        buf.append(hint_line)
-
-        if S['status']:
-            buf.append(('\033[33m  ' + S['status'] + '\033[0m') if color else ('  ' + S['status']))
+            left  = '  ' + status_str if status_str else ''
+            pad   = max(0, total_w - len(left) - len(upd_plain))
+            if color:
+                buf.append(('\033[33m' + left + '\033[0m' if left else '') +
+                            ' ' * pad + '\033[36m' + upd_plain + '\033[0m')
+            else:
+                buf.append(left + ' ' * pad + upd_plain)
+        elif status_str:
+            buf.append(('\033[33m  ' + status_str + '\033[0m') if color else ('  ' + status_str))
 
         with _draw_lock:
             out.write(HOME_CL + '\n'.join(buf))
@@ -2804,139 +2804,149 @@ def cmd_interactive(_args=None):
                         S['status'] = f'Data exists (updated {label}). Press [A] again to force update.'
                     else:
                         S['_update_confirm'] = False
-                        if not os.environ.get('ANTHROPIC_API_KEY'):
-                            S['status'] = '✗ ANTHROPIC_API_KEY not set'
+
+                        _uuid = get_account_uuid()
+                        if not _uuid:
+                            S['status'] = '✗ Cannot read account UUID'
                         else:
-                                _uuid = get_account_uuid()
-                                if not _uuid:
-                                    S['status'] = '✗ Cannot read account UUID'
-                                else:
-                                    S['updating'] = True
-                                    S['status']   = 'Starting update...'
+                            S['updating'] = True
+                            S['status']   = 'Starting update...'
 
-                                    def _do_api_update(_uuid=_uuid):
-                                        _exe   = find_exe()
-                                        _nv    = get_current_nv(_exe) if _exe else None
-                                        total  = len(SPECIES) * len(RARITIES)
-                                        done   = 0
-                                        results = {}   # sp -> rar -> entry dict
+                        def _do_api_update(_uuid=_uuid):
+                            import concurrent.futures as _cf
+                            _exe   = find_exe()
+                            _nv    = get_current_nv(_exe) if _exe else None
+                            combos = [(sp, rar) for sp in SPECIES for rar in RARITIES]
+                            total  = len(combos)
 
-                                        for sp in SPECIES:
-                                            results[sp] = {}
-                                            for rar in RARITIES:
-                                                done += 1
-                                                with _draw_lock:
-                                                    S['update_status'] = f'[{done}/{total}] {sp}/{rar} searching...'
-                                                _draw(S['frame'])
+                            # ── Phase 1: find seeds (fast, sequential) ────
+                            seeds = {}
+                            with _draw_lock:
+                                S['update_status'] = f'[0/{total}] preparing seeds...'
+                            _draw(S['frame'])
+                            for i, (sp, rar) in enumerate(combos, 1):
+                                if not S.get('updating'):
+                                    with _draw_lock: S['update_status'] = ''
+                                    _draw(S['frame']); return
+                                nv_seed, seed_bones = '', None
+                                if _nv:
+                                    b = simulate(_uuid, _nv)
+                                    if b['species'] == sp and b['rarity'] == rar:
+                                        seed_bones, nv_seed = b, _nv
+                                if seed_bones is None:
+                                    hits = find_seed(_uuid, sp, rar, count=1, max_iter=200000)
+                                    if hits:
+                                        nv_seed, seed_bones = hits[0]['nv'], hits[0]
+                                    else:
+                                        insp_seed = hash(f'{sp}{rar}') & 0xFFFFFFFF
+                                        seed_bones = {
+                                            'species': sp, 'rarity': rar,
+                                            'eye': '·', 'hat': 'none' if rar == 'common' else 'wizard',
+                                            'shiny': False,
+                                            'stats': {st: RARITY_BASE_STAT[rar] + 20 for st in STATS},
+                                            'inspiration_words': wcy(insp_seed, 4),
+                                        }
+                                seeds[(sp, rar)] = (get_official_id(sp, rar), nv_seed, seed_bones)
 
-                                                # Find seed
-                                                official_id = get_official_id(sp, rar)
-                                                seed_bones  = None
-                                                nv_seed     = ''
-                                                if _nv:
-                                                    b = simulate(_uuid, _nv)
-                                                    if b['species'] == sp and b['rarity'] == rar:
-                                                        seed_bones = b
-                                                        nv_seed    = _nv
-                                                if seed_bones is None:
-                                                    hits = find_seed(_uuid, sp, rar, count=1, max_iter=200000)
-                                                    if hits:
-                                                        nv_seed    = hits[0]['nv']
-                                                        seed_bones = hits[0]
-                                                    else:
-                                                        insp_seed  = hash(f'{sp}{rar}') & 0xFFFFFFFF
-                                                        seed_bones = {
-                                                            'species': sp, 'rarity': rar,
-                                                            'eye': '·', 'hat': 'none' if rar == 'common' else 'wizard',
-                                                            'shiny': False,
-                                                            'stats': {st: RARITY_BASE_STAT[rar] + 20 for st in STATS},
-                                                            'inspiration_words': wcy(insp_seed, 4),
-                                                        }
+                            # ── Phase 2: generate personalities (parallel) ─
+                            results   = {}
+                            done_n    = [0]
+                            failed_at = [None]
 
-                                                # Check if cancelled after search
-                                                if not S.get('updating'):
-                                                    with _draw_lock:
-                                                        S['update_status'] = ''
-                                                    _draw(S['frame'])
-                                                    return
+                            def _gen(combo):
+                                sp, rar = combo
+                                if not S.get('updating'):
+                                    return sp, rar, None, 'cancelled'
+                                oid, nv_seed, seed_bones = seeds[combo]
+                                gen = generate_personality(seed_bones)
+                                if not gen or not gen.get('personality'):
+                                    return sp, rar, None, 'failed'
+                                return sp, rar, {
+                                    'id': oid, 'species': sp, 'rarity': rar,
+                                    'nv_seed': nv_seed,
+                                    'name': gen['name'], 'personality': gen['personality'],
+                                    'eye':   seed_bones.get('eye', '·'),
+                                    'hat':   seed_bones.get('hat', 'none'),
+                                    'shiny': seed_bones.get('shiny', False),
+                                    'stats': seed_bones.get('stats', {}),
+                                    'inspiration_words': seed_bones.get('inspiration_words', []),
+                                    'source': 'official',
+                                }, 'ok'
 
-                                                with _draw_lock:
-                                                    S['update_status'] = f'[{done}/{total}] {sp}/{rar} generating...'
-                                                _draw(S['frame'])
+                            with _cf.ThreadPoolExecutor(max_workers=8) as pool:
+                                futures = {pool.submit(_gen, c): c for c in combos}
+                                for fut in _cf.as_completed(futures):
+                                    sp, rar, entry, status = fut.result()
+                                    if status == 'failed':
+                                        failed_at[0] = f'{sp}/{rar}'
+                                        S['updating'] = False
+                                        break
+                                    if status == 'cancelled':
+                                        break
+                                    done_n[0] += 1
+                                    results[(sp, rar)] = entry
+                                    with _draw_lock:
+                                        S['update_status'] = f'[{done_n[0]}/{total}] generating...'
+                                    _draw(S['frame'])
 
-                                                # Check if cancelled before API call
-                                                if not S.get('updating'):
-                                                    with _draw_lock:
-                                                        S['update_status'] = ''
-                                                    _draw(S['frame'])
-                                                    return
+                            if not S.get('updating') or failed_at[0]:
+                                with _draw_lock:
+                                    S['updating']      = False
+                                    S['update_status'] = ''
+                                    if failed_at[0]:
+                                        S['status'] = f'✗ {failed_at[0]} failed. Config unchanged.'
+                                    else:
+                                        S['status'] = 'Update cancelled. Config unchanged.'
+                                _draw(S['frame'])
+                                return
 
-                                                gen = generate_personality(seed_bones)
-                                                if not gen or not gen.get('personality'):
-                                                    with _draw_lock:
-                                                        S['updating']      = False
-                                                        S['update_status'] = ''
-                                                        S['status']        = f'✗ [{done}/{total}] {sp}/{rar} API failed. Config unchanged.'
-                                                    _draw(S['frame'])
-                                                    return
+                            # reshape results to nested dict for compat
+                            results_nested = {}
+                            for (sp, rar), entry in results.items():
+                                results_nested.setdefault(sp, {})[rar] = entry
 
-                                                results[sp][rar] = {
-                                                    'id':                official_id,
-                                                    'species':           sp,
-                                                    'rarity':            rar,
-                                                    'nv_seed':           nv_seed,
-                                                    'name':              gen['name'],
-                                                    'personality':       gen['personality'],
-                                                    'eye':               seed_bones.get('eye', '·'),
-                                                    'hat':               seed_bones.get('hat', 'none'),
-                                                    'shiny':             seed_bones.get('shiny', False),
-                                                    'stats':             seed_bones.get('stats', {}),
-                                                    'inspiration_words': seed_bones.get('inspiration_words', []),
-                                                    'source':            'official',
-                                                }
+                            # ── All 90 succeeded — write config ──────────
+                            import datetime as _dt
+                            cfg = load_config()
+                            valid_ids = {get_official_id(sp, rar) for sp in SPECIES for rar in RARITIES}
 
-                                        # ── All 90 succeeded — write config ──────────
-                                        import datetime as _dt
-                                        cfg = load_config()
-                                        valid_ids = {get_official_id(sp, rar) for sp in SPECIES for rar in RARITIES}
+                            # Move stale official → custom
+                            stale = [e for e in cfg.get('official', []) if e.get('id') not in valid_ids]
+                            for e in stale:
+                                e['source'] = 'custom'
+                                cfg.setdefault('custom', []).append(e)
+                            cfg['official'] = [e for e in cfg.get('official', []) if e.get('id') in valid_ids]
 
-                                        # Move stale official → custom
-                                        stale = [e for e in cfg.get('official', []) if e.get('id') not in valid_ids]
-                                        for e in stale:
-                                            e['source'] = 'custom'
-                                            cfg.setdefault('custom', []).append(e)
-                                        cfg['official'] = [e for e in cfg.get('official', []) if e.get('id') in valid_ids]
+                            # Update/insert official entries
+                            for sp in SPECIES:
+                                for rar in RARITIES:
+                                    new_entry = results_nested[sp][rar]
+                                    existing  = cfg_find(cfg, sp, rar)
+                                    if existing is not None:
+                                        existing.update(new_entry)
+                                    else:
+                                        cfg.setdefault('official', []).append(new_entry)
 
-                                        # Update/insert official entries
-                                        for sp in SPECIES:
-                                            for rar in RARITIES:
-                                                new_entry = results[sp][rar]
-                                                existing  = cfg_find(cfg, sp, rar)
-                                                if existing is not None:
-                                                    existing.update(new_entry)
-                                                else:
-                                                    cfg.setdefault('official', []).append(new_entry)
+                            cfg['official'].sort(key=lambda x: x['id'])
+                            cfg['_meta']['account_uuid']   = _uuid
+                            cfg['_meta']['data_updated_at'] = _dt.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+                            cfg_renumber(cfg)
+                            save_config(cfg)
 
-                                        cfg['official'].sort(key=lambda x: x['id'])
-                                        cfg['_meta']['account_uuid']   = _uuid
-                                        cfg['_meta']['data_updated_at'] = _dt.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-                                        cfg_renumber(cfg)
-                                        save_config(cfg)
+                            # Reload TUI current-buddy state
+                            new_cur = cfg_get_current(cfg)
+                            if new_cur:
+                                new_b = _bones_from_entry(new_cur)
+                                real_bones.clear()
+                                real_bones.update(new_b)
 
-                                        # Reload TUI current-buddy state
-                                        new_cur = cfg_get_current(cfg)
-                                        if new_cur:
-                                            new_b = _bones_from_entry(new_cur)
-                                            real_bones.clear()
-                                            real_bones.update(new_b)
+                            with _draw_lock:
+                                S['updating']      = False
+                                S['update_status'] = ''
+                                S['status']        = f'✓ Update complete ({total}/{total}). Config saved.'
+                            _draw(S['frame'])
 
-                                        with _draw_lock:
-                                            S['updating']      = False
-                                            S['update_status'] = ''
-                                            S['status']        = f'✓ Update complete ({total}/{total}). Config saved.'
-                                        _draw(S['frame'])
-
-                                    threading.Thread(target=_do_api_update, daemon=True).start()
+                        threading.Thread(target=_do_api_update, daemon=True).start()
             elif run_action == 'patch':
                 if not exe:
                     S['status'] = '\u2717 Cannot find claude.exe'
@@ -2977,12 +2987,7 @@ def cmd_interactive(_args=None):
                         _exit_mouse_mode()
                         print(f'\n\u2500\u2500 Buddy Patch ({reason}) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500')
                         print('Closing all Claude instances...')
-                        if sys.platform == 'win32':
-                            subprocess.run(['taskkill', '/F', '/IM', 'claude.exe'],
-                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                        else:
-                            subprocess.run(['pkill', '-x', 'claude'],
-                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        _kill_claude()
                         import time as _t2; _t2.sleep(0.8)
                         print('Applying bones-swap patch...')
                         ok, result = patch_bones_swap(exe)
