@@ -1,6 +1,6 @@
 ---
 name: buddy-manager
-description: Manage Claude Code buddy companion — switch species/rarity, rename, mute/unmute, apply bones-swap patch. Full TUI with live preview. 18 species × 5 rarities.
+description: Manage Claude Code buddy companion — switch species/rarity, rename, mute/unmute, apply bones-swap patch. Full TUI with live preview. 18 species × 5 rarities. Supports both native and npm installations.
 ---
 
 # Buddy Manager — TUI Mode
@@ -54,7 +54,7 @@ On Windows, buddy.py also handles singleton detection via `FindWindowW('Buddy Ma
 | R | `[R] Reset` | Revert preview to current saved buddy |
 | U | `[U] Reload` | Reload buddy_config.json without closing TUI (for manual edits) |
 | A | `[A] Data Update` / `[A] Updating...` | Fetch fresh data from API for all 90 species×rarity combos; all-or-nothing write |
-| P | `[P] Patch` | Apply / verify bones-swap patch to claude.exe |
+| P | `[P] Patch` | Apply / verify bones-swap patch to claude executable (native or npm) |
 | M | `[M] Buddy OFF` / `[M] Buddy ON` | Toggle companion speech bubble (mute/unmute) |
 | Q | `[Q] Quit` | Exit TUI |
 
@@ -66,7 +66,7 @@ Check stdout. Handle signal if present:
 
 ### `PATCH_READY:<exe_path>`
 
-First-time bones-swap patch was applied. Kill ALL Claude instances so the patched exe loads:
+First-time bones-swap patch was applied to a **native** binary. Kill ALL Claude instances so the patched exe loads:
 
 ```python
 import subprocess, sys
@@ -75,6 +75,8 @@ if sys.platform == 'win32':
 else:
     subprocess.run(['pkill', '-x', 'claude'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 ```
+
+For **npm** installations, the patch is applied directly to `cli.js` (no process kill needed). The TUI displays a restart reminder instead of emitting `PATCH_READY`.
 
 ### No signal
 

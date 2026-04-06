@@ -7,6 +7,7 @@ Implements the full buddy generation algorithm in pure Python (wyhash + Mulberry
 import struct
 import sys
 import json
+import functools
 
 
 def _is_cli_mode():
@@ -289,25 +290,60 @@ def calibrate(account_uuid):
 # ─────────────────────────────────────────────
 # Paths
 # ─────────────────────────────────────────────
+_CLI_JS_RE = re.compile(r'["\']([^"\']+/@anthropic-ai/claude-code/cli\.js)["\']')
+
+def _resolve_shim_to_cli_js(shim_path):
+    """Given a shim script path, return the cli.js path it references, or None."""
+    import pathlib
+    _pkg = pathlib.Path('@anthropic-ai') / 'claude-code' / 'cli.js'
+    try:
+        with open(shim_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read(4096)
+        m = _CLI_JS_RE.search(content)
+        if m and os.path.exists(m.group(1)):
+            return m.group(1)
+    except OSError:
+        pass
+    # Fallback: ../lib/node_modules (standard Mac/Linux npm prefix layout)
+    candidate = os.path.normpath(os.path.join(os.path.dirname(shim_path), '..', 'lib', 'node_modules',
+                                               '@anthropic-ai', 'claude-code', 'cli.js'))
+    return candidate if os.path.exists(candidate) else None
+
+
+@functools.lru_cache(maxsize=None)
 def find_exe():
-    """Find the claude executable (claude.exe on Windows, claude on Mac/Linux)."""
+    """Find the claude executable (claude.exe on Windows, claude on Mac/Linux).
+
+    Priority: whichever 'claude' resolves to in PATH first.
+    Supports both native (.exe) and npm (cli.js) installations.
+    """
     if sys.platform == 'win32':
         try:
             result = subprocess.run(['where', 'claude'], capture_output=True, text=True)
-            for line in result.stdout.strip().splitlines():
-                line = line.strip()
+            lines = [l.strip() for l in result.stdout.strip().splitlines() if l.strip()]
+            # First pass: prefer native .exe (patchable binary)
+            for line in lines:
                 if line.endswith('.exe') and os.path.exists(line):
                     return line
+            # Second pass: npm shim → resolve to cli.js
+            for line in lines:
+                if os.path.exists(line):
+                    # Follow npm shim: look for cli.js in node_modules
+                    npm_root = os.path.join(os.path.dirname(line), 'node_modules',
+                                            '@anthropic-ai', 'claude-code', 'cli.js')
+                    if os.path.exists(npm_root):
+                        return npm_root
         except Exception:
             pass
         return None
     else:
         # Mac/Linux: use 'which claude' then check common install paths
+        candidates = []
         try:
             result = subprocess.run(['which', 'claude'], capture_output=True, text=True)
             path = result.stdout.strip()
             if path and os.path.exists(path):
-                return path
+                candidates.append(path)
         except Exception:
             pass
         for p in [
@@ -319,8 +355,27 @@ def find_exe():
                for p in sorted(__import__('glob').glob(os.path.expanduser('~/.nvm/versions/node/*')), reverse=True)
                if os.path.exists(os.path.join(p, 'bin', 'claude'))]),
         ]:
-            if os.path.exists(p):
-                return p
+            if os.path.exists(p) and p not in candidates:
+                candidates.append(p)
+
+        for path in candidates:
+            # First pass: prefer native binary (not a shell script)
+            try:
+                with open(path, 'rb') as f:
+                    magic = f.read(4)
+                # ELF (Linux) or Mach-O (macOS) magic bytes → native binary
+                if magic[:4] == b'\x7fELF' or magic[:4] in (b'\xfe\xed\xfa\xce', b'\xfe\xed\xfa\xcf',
+                                                               b'\xce\xfa\xed\xfe', b'\xcf\xfa\xed\xfe'):
+                    return path
+            except OSError:
+                pass
+
+        for path in candidates:
+            # Second pass: npm shim (shell script) → resolve to cli.js
+            result = _resolve_shim_to_cli_js(path)
+            if result:
+                return result
+
         return None
 
 def claude_json_path():
@@ -642,56 +697,120 @@ def patch_exe(exe_path, old_nv, new_nv):
 _BONES_OLD = b'return{...H,...$}'   # 17 bytes — $ wins (original)
 _BONES_NEW = b'return{...$,...H}'   # 17 bytes — H wins (patched)
 
+# ── npm (cli.js) patch support ────────────────────────────────────────────────
+# In the npm build the bones-merge function compiles to (variable names vary):
+#   function lC(){let q=w8().companion;if(!q)return;let{bones:K}=tS1(eS1());return{...q,...K}}
+# Regex captures companion_var (g1) and bones_var (g2) dynamically so the
+# patch survives minor minifier renames between npm releases.
+_JS_FUNC_RE = re.compile(
+    r'let (\w+)=\w+\(\)\.companion;if\(!\1\)return;let\{bones:(\w+)\}=[^;]+;'
+    r'return\{\.\.\.(\w+),\.\.\.(\w+)\}'
+)
 
-def is_bones_swap_patched(exe_path):
-    """Return True if the companion bones spread is already swapped to {...$,...H}."""
+
+def _is_npm_exe(exe_path):
+    """Return True if exe_path is the npm cli.js (not a native PE binary)."""
+    return exe_path is not None and exe_path.endswith('cli.js')
+
+
+def _js_patch_vars(cli_path):
+    """Return (companion_var, bones_var, first_var, second_var) from cli.js, or None."""
     try:
-        with open(exe_path, 'rb') as f:
+        with open(cli_path, 'r', encoding='utf-8', errors='ignore') as f:
             data = f.read()
     except OSError:
+        return None
+    m = _JS_FUNC_RE.search(data)
+    if not m:
+        return None
+    return m.groups()
+
+
+_PATCH_CHECK_CACHE = {}   # {exe_path: (mtime, result)}
+
+def is_bones_swap_patched(exe_path):
+    """Return True if the companion bones spread is already swapped (H/companion wins).
+
+    Result is cached per (path, mtime) to avoid re-reading large binaries on every call.
+    """
+    try:
+        mtime = os.path.getmtime(exe_path)
+    except OSError:
         return False
-    # Patched: return{...$,...H} immediately before companion seed declaration
-    # Supports both old (zI7) and new (fC7) exe variable naming
-    import re as _re
-    return bool(_re.search(
-        rb'return\{\.\.\.\$,\.\.\.H\}\}(?:var\s+\w+,)?\w+[CI]7="[^"]{8,20}"',
-        data
-    ))
+    cached = _PATCH_CHECK_CACHE.get(exe_path)
+    if cached and cached[0] == mtime:
+        return cached[1]
+
+    if _is_npm_exe(exe_path):
+        v = _js_patch_vars(exe_path)
+        result = bool(v and v[2] == v[1] and v[3] == v[0])
+    else:
+        try:
+            with open(exe_path, 'rb') as f:
+                data = f.read()
+        except OSError:
+            return False
+        result = bool(re.search(
+            rb'return\{\.\.\.\$,\.\.\.H\}\}(?:var\s+\w+,)?\w+[CI]7="[^"]{8,20}"',
+            data
+        ))
+
+    _PATCH_CHECK_CACHE[exe_path] = (mtime, result)
+    return result
 
 
 def patch_bones_swap(exe_path):
     """
-    Patch: swap { ...H, ...$ } → { ...$, ...H } in the _I() companion function.
+    Patch: swap companion/bones spread order so companion.species wins over NV_seed.
+
+    Works for both native binaries (.exe / ELF / Mach-O) and npm cli.js.
 
     .bak management (exe_path + '.bak'):
-      - No .bak → create from exe
-      - .bak exists but differs from exe (new Claude version) → update .bak from exe
-      - .bak matches exe → use as-is
+      - No .bak → create from exe/cli.js
+      - .bak exists but differs from current file (Claude updated) → update .bak
+      - .bak matches current file → use as-is
 
     Always patches from .bak → writes exe_path + '.patched'.
     Returns (True, patched_path) or (False, error_msg).
     """
+    if _is_npm_exe(exe_path):
+        return _patch_npm_bones_swap(exe_path)
+    return _patch_native_bones_swap(exe_path)
+
+
+def _bak_sync(file_path):
+    """Ensure file_path.bak exists and matches file_path (hash-based). Returns (bak_path, error)."""
     import shutil as _sh, hashlib
+    bak_path = file_path + '.bak'
 
-    bak_path = exe_path + '.bak'
-
-    def _hash(path):
+    def _hash(p):
         h = hashlib.sha256()
-        with open(path, 'rb') as f:
+        with open(p, 'rb') as f:
             for chunk in iter(lambda: f.read(65536), b''):
                 h.update(chunk)
         return h.hexdigest()
 
-    # ── Keep .bak in sync with exe ────────────────────────────────────────
     try:
         if not os.path.exists(bak_path):
-            _sh.copy2(exe_path, bak_path)
-        elif _hash(exe_path) != _hash(bak_path):
-            _sh.copy2(exe_path, bak_path)   # exe changed (Claude updated) → refresh .bak
+            _sh.copy2(file_path, bak_path)
+        elif _hash(file_path) != _hash(bak_path):
+            # Only update bak if the current file is NOT already patched.
+            # If it IS patched, the hash difference is our own patch — bak holds
+            # the clean original and must not be overwritten.
+            # If it is NOT patched, Claude was updated with a new version → refresh bak.
+            if not is_bones_swap_patched(file_path):
+                _sh.copy2(file_path, bak_path)   # Claude updated → refresh .bak
     except OSError as e:
-        return False, f"Failed to maintain backup: {e}"
+        return None, f"Failed to maintain backup: {e}"
+    return bak_path, None
 
-    # ── Patch from .bak ───────────────────────────────────────────────────
+
+def _patch_native_bones_swap(exe_path):
+    """Patch native binary: byte-level replacement of _BONES_OLD → _BONES_NEW."""
+    bak_path, err = _bak_sync(exe_path)
+    if err:
+        return False, err
+
     try:
         with open(bak_path, 'rb') as f:
             data = f.read()
@@ -708,6 +827,45 @@ def patch_bones_swap(exe_path):
     patched_path = exe_path + '.patched'
     try:
         with open(patched_path, 'wb') as f:
+            f.write(new_data)
+    except OSError as e:
+        return False, f"Failed to write patched file: {e}"
+
+    return True, patched_path
+
+
+def _patch_npm_bones_swap(cli_path):
+    """Patch npm cli.js: text replacement of return{...companion,...bones} → return{...bones,...companion}."""
+    bak_path, err = _bak_sync(cli_path)
+    if err:
+        return False, err
+
+    try:
+        with open(bak_path, 'r', encoding='utf-8', errors='ignore') as f:
+            data = f.read()
+    except OSError as e:
+        return False, str(e)
+
+    m = _JS_FUNC_RE.search(data)
+    if not m:
+        return False, f"companion bones pattern not found in {bak_path}"
+
+    companion_var, bones_var, first_var, second_var = m.groups()
+
+    if first_var == bones_var and second_var == companion_var:
+        # .bak already in patched form — copy as-is
+        new_data = data
+    elif first_var == companion_var and second_var == bones_var:
+        # Normal: swap the spread order
+        old_str = f'return{{...{companion_var},...{bones_var}}}'
+        new_str = f'return{{...{bones_var},...{companion_var}}}'
+        new_data = data.replace(old_str, new_str, 1)
+    else:
+        return False, f"unexpected spread variables in {bak_path}: {first_var}, {second_var}"
+
+    patched_path = cli_path + '.patched'
+    try:
+        with open(patched_path, 'w', encoding='utf-8') as f:
             f.write(new_data)
     except OSError as e:
         return False, f"Failed to write patched file: {e}"
@@ -813,6 +971,35 @@ def _kill_claude(pid=None):
             else:
                 subprocess.run(['pkill', '-x', 'claude'],
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except (ProcessLookupError, OSError):
+        pass
+
+
+def _get_npm_node_pids_win():
+    """Return list of PIDs for node.exe processes running claude-code cli.js (Windows)."""
+    try:
+        r = subprocess.run(
+            ['powershell', '-NoProfile', '-Command',
+             "Get-WmiObject Win32_Process -Filter \"name='node.exe'\" | "
+             "Where-Object { $_.CommandLine -like '*claude-code*cli.js*' } | "
+             "Select-Object -ExpandProperty ProcessId"],
+            capture_output=True, text=True, errors='replace'
+        )
+        return [line.strip() for line in r.stdout.strip().splitlines() if line.strip().isdigit()]
+    except OSError:
+        return []
+
+
+def _kill_claude_npm():
+    """Kill Claude Code node.exe processes running cli.js (npm installation)."""
+    try:
+        if sys.platform == 'win32':
+            for pid in _get_npm_node_pids_win():
+                subprocess.run(['taskkill', '/F', '/PID', pid],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            subprocess.run(['pkill', '-f', 'claude-code/cli.js'],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except (ProcessLookupError, OSError):
         pass
 
@@ -1063,7 +1250,23 @@ def _exe_hash():
 
 
 def get_claude_version():
-    """Get Claude version string from `claude --version`. Returns None if unavailable."""
+    """Get Claude version string. Returns None if unavailable.
+
+    For npm installations, reads version from package.json (avoids session routing).
+    For native, runs `claude --version`.
+    """
+    import json as _json
+    # npm: read from package.json (fast, no subprocess, no session routing)
+    exe = find_exe()
+    if _is_npm_exe(exe):
+        try:
+            import pathlib as _pl
+            pkg = _pl.Path(exe).parent / 'package.json'
+            with open(pkg, 'r', encoding='utf-8') as f:
+                return _json.load(f).get('version')
+        except Exception:
+            pass
+    # native: run claude --version
     try:
         result = subprocess.run(
             ['claude', '--version'],
@@ -1126,17 +1329,31 @@ _BUDDY_SYSTEM = (
     'Respond with valid JSON only: {"name": "...", "personality": "..."}'
 )
 
+@functools.lru_cache(maxsize=None)
 def _find_claude_cli():
-    """Find the claude executable path."""
+    """Find the claude CLI command path (for running 'claude -p ...').
+
+    On Windows: prefer .cmd shim (subprocess-runnable) over extension-less
+    bash shim, then .exe. Never return the bare shim which subprocess cannot
+    execute directly.
+    On Mac/Linux: return first match from 'which claude'.
+    Falls back to bare 'claude' (relies on PATH + shell).
+    """
     try:
         result = subprocess.run(
             ['where', 'claude'] if sys.platform == 'win32' else ['which', 'claude'],
             capture_output=True, text=True
         )
-        for line in result.stdout.strip().splitlines():
-            line = line.strip()
-            if line and os.path.exists(line):
-                return line
+        lines = [l.strip() for l in result.stdout.strip().splitlines() if l.strip()]
+        if sys.platform == 'win32':
+            for ext in ('.cmd', '.exe'):
+                for line in lines:
+                    if line.lower().endswith(ext) and os.path.exists(line):
+                        return line
+        else:
+            for line in lines:
+                if os.path.exists(line):
+                    return line
     except Exception:
         pass
     return 'claude'
@@ -1174,13 +1391,16 @@ def _find_git_bash():
 
 
 def generate_personality(bones):
-    """Generate name+personality via `claude -p` CLI. Returns {name, personality} or None."""
+    """Generate name+personality via `claude -p` CLI. Returns {name, personality} or None.
+
+    Uses node cli.js directly (bypasses claude.cmd batch shim) with --output-format json.
+    Sets CLAUDECODE='' to prevent session inheritance when called from within Claude Code.
+    """
     import json as _json, re as _re
     stats_str = ' '.join(f'{k}:{v}' for k, v in bones['stats'].items())
     words     = bones.get('inspiration_words', [])
     shiny_ln  = 'SHINY variant \u2014 extra special. ' if bones.get('shiny') else ''
-    prompt    = (
-        f"{_BUDDY_SYSTEM}\n\n"
+    user_prompt = (
         f"Generate a companion.\n"
         f"Rarity: {bones['rarity'].upper()}\n"
         f"Species: {bones['species']}\n"
@@ -1188,25 +1408,100 @@ def generate_personality(bones):
         f"Inspiration words: {', '.join(words)}\n"
         f"{shiny_ln}Make it memorable and distinct."
     )
+
+    cmd = _build_claude_cmd()
+    if not cmd:
+        return None
+
     env = os.environ.copy()
-    if sys.platform == 'win32':
-        bash = _find_git_bash()
-        if bash:
-            env['CLAUDE_CODE_GIT_BASH_PATH'] = bash
+    if cmd[-1].endswith('cli.js'):
+        # npm mode: clear CLAUDECODE to prevent parent session inheritance
+        # (node cli.js running inside Claude Code routes through the parent session
+        #  without this; native exe is not affected by this var)
+        env['CLAUDECODE'] = ''
+
     try:
         result = subprocess.run(
-            [_find_claude_cli(), '-p', prompt],
-            capture_output=True, text=True, timeout=60, env=env
+            cmd + ['-p', user_prompt, '--system-prompt', _BUDDY_SYSTEM,
+                   '--output-format', 'json'],
+            capture_output=True, text=True, timeout=90, env=env
         )
-        text = result.stdout.strip()
+        if not result.stdout.strip():
+            return None
+        # --output-format json wraps result: {"type":"result","result":"..."}
+        wrapper = _json.loads(result.stdout.strip())
+        text = wrapper.get('result', '') if isinstance(wrapper, dict) else result.stdout.strip()
         if not text:
             return None
-        text = _re.sub(r'^```[a-z]*\n?', '', text)
+        text = _re.sub(r'^```[a-z]*\n?', '', text.strip())
         text = _re.sub(r'\n?```$', '', text).strip()
         data = _json.loads(text)
         return {'name': data.get('name', ''), 'personality': data.get('personality', '')}
-    except Exception:
+    except Exception as _e:
+        import traceback as _tb
+        print(f"[generate_personality] {bones.get('species')}/{bones.get('rarity')}: {_e}", file=sys.stderr)
+        _tb.print_exc(file=sys.stderr)
         return None
+
+
+def _build_claude_cmd():
+    """Return the command list to invoke claude in subprocess mode.
+
+    Prefers node + cli.js (avoids batch-shim session-inheritance on Windows).
+    Falls back to the CLI shim path found by _find_claude_cli().
+    """
+    # Try: node <cli.js path>
+    node = os.environ.get('CLAUDE_CODE_EXECPATH') or 'node'
+    cli_js = _find_npm_cli_js()
+    if cli_js and os.path.exists(cli_js):
+        return [node, cli_js]
+    # Fallback: platform shim
+    cli = _find_claude_cli()
+    return [cli] if cli else None
+
+
+@functools.lru_cache(maxsize=None)
+def _find_npm_cli_js():
+    """Return path to npm-installed @anthropic-ai/claude-code/cli.js, or None."""
+    import pathlib
+    _pkg = pathlib.Path('@anthropic-ai') / 'claude-code' / 'cli.js'
+
+    # 1. Windows: CLAUDE_CODE_EXECPATH (node.exe) → sibling Roaming/npm/node_modules
+    node_exe = os.environ.get('CLAUDE_CODE_EXECPATH', '')
+    if node_exe:
+        p = pathlib.Path(node_exe)
+        for base in [p.parent, p.parent.parent]:
+            candidate = base / 'node_modules' / _pkg
+            if candidate.exists():
+                return str(candidate)
+
+    # 2. Derive from shim location
+    cli = _find_claude_cli()
+    if cli:
+        cli_p = pathlib.Path(cli)
+        # Windows npm: shim dir == node_modules sibling (e.g. Roaming/npm/)
+        candidate = cli_p.parent / 'node_modules' / _pkg
+        if candidate.exists():
+            return str(candidate)
+        # Mac/Linux: parse shim script or check ../lib/node_modules
+        result = _resolve_shim_to_cli_js(cli)
+        if result:
+            return result
+
+    # 3. nvm: scan ~/.nvm/versions/node/*/lib/node_modules (Mac/Linux)
+    import glob as _glob
+    for nvm_ver in sorted(_glob.glob(os.path.expanduser('~/.nvm/versions/node/*')), reverse=True):
+        candidate = pathlib.Path(nvm_ver) / 'lib' / 'node_modules' / _pkg
+        if candidate.exists():
+            return str(candidate)
+
+    # 4. Standard Mac/Linux global npm prefixes
+    for prefix in ['/usr/local', '/usr', os.path.expanduser('~/.local')]:
+        candidate = pathlib.Path(prefix) / 'lib' / 'node_modules' / _pkg
+        if candidate.exists():
+            return str(candidate)
+
+    return None
 
 def cmd_update_pers(args, force=False):
     """Update buddy personalities and config.
@@ -1876,15 +2171,26 @@ def cmd_unmute(args):
 
 
 def _is_claude_running():
-    """Return True if any claude process is currently running."""
+    """Return True if any claude process is currently running.
+
+    Checks both native (claude.exe / claude) and npm (node running cli.js) modes.
+    """
+    exe = find_exe()
     try:
         if sys.platform == 'win32':
-            r = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq claude.exe'],
-                               capture_output=True, text=True, errors='replace')
-            return 'claude.exe' in r.stdout
+            if _is_npm_exe(exe):
+                return len(_get_npm_node_pids_win()) > 0
+            else:
+                r = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq claude.exe'],
+                                   capture_output=True, text=True, errors='replace')
+                return 'claude.exe' in r.stdout
         else:
-            r = subprocess.run(['pgrep', '-x', 'claude'], capture_output=True)
-            return r.returncode == 0
+            if _is_npm_exe(exe):
+                r = subprocess.run(['pgrep', '-f', 'cli.js'], capture_output=True)
+                return r.returncode == 0
+            else:
+                r = subprocess.run(['pgrep', '-x', 'claude'], capture_output=True)
+                return r.returncode == 0
     except Exception:
         return False
 
@@ -1899,7 +2205,7 @@ def _apply_pending_patch(exe_path):
     if _is_claude_running():
         return False
     try:
-        shutil.move(patched, exe_path)
+        shutil.copy2(patched, exe_path)
         return True
     except OSError:
         return False
@@ -1916,7 +2222,7 @@ def _do_switch(patched_path, exe_path):
     import shutil
 
     if not _is_claude_running():
-        shutil.move(patched_path, exe_path)
+        shutil.copy2(patched_path, exe_path)
         print("✓ Bones-swap patch applied.")
         if not _is_cli_mode():
             print("  Open Claude Code to use the new companion.")
@@ -2903,21 +3209,28 @@ def cmd_interactive(_args=None):
                                     'source': 'official',
                                 }, 'ok'
 
-                            with _cf.ThreadPoolExecutor(max_workers=8) as pool:
+                            pool = _cf.ThreadPoolExecutor(max_workers=8)
+                            try:
                                 futures = {pool.submit(_gen, c): c for c in combos}
                                 for fut in _cf.as_completed(futures):
                                     sp, rar, entry, status = fut.result()
                                     if status == 'failed':
                                         failed_at[0] = f'{sp}/{rar}'
                                         S['updating'] = False
+                                        with _draw_lock: S['update_status'] = ''
+                                        _draw(S['frame'])
                                         break
                                     if status == 'cancelled':
+                                        with _draw_lock: S['update_status'] = ''
+                                        _draw(S['frame'])
                                         break
                                     done_n[0] += 1
                                     results[(sp, rar)] = entry
                                     with _draw_lock:
                                         S['update_status'] = f'[{done_n[0]}/{total}] generating...'
                                     _draw(S['frame'])
+                            finally:
+                                pool.shutdown(wait=False, cancel_futures=True)
 
                             if not S.get('updating') or failed_at[0]:
                                 with _draw_lock:
@@ -2979,7 +3292,7 @@ def cmd_interactive(_args=None):
                         threading.Thread(target=_do_api_update, daemon=True).start()
             elif run_action == 'patch':
                 if not exe:
-                    S['status'] = '\u2717 Cannot find claude.exe'
+                    S['status'] = '\u2717 Cannot find claude executable'
                 else:
                     patched_now = is_bones_swap_patched(exe)
                     cur_ver     = get_claude_version()
@@ -3030,16 +3343,21 @@ def cmd_interactive(_args=None):
                             S['status'] = f'\u2717 Patch failed: {result}'
                         else:
                             import shutil as _sh
-                            _prt('Closing all Claude instances...', YLW)
-                            _kill_claude()
-                            import time as _t2; _t2.sleep(0.8)
                             patched_file = exe + '.patched'
+                            is_npm = _is_npm_exe(exe)
+                            _prt('Closing Claude instance...', YLW)
+                            if is_npm:
+                                _kill_claude_npm()
+                            else:
+                                _kill_claude()
+                            import time as _t2; _t2.sleep(0.8)
                             if os.path.exists(patched_file):
                                 try:
-                                    _sh.move(patched_file, exe)
-                                    _prt('\u2713 claude.exe replaced.', GRN)
+                                    _sh.copy2(patched_file, exe)
+                                    label_file = 'cli.js' if is_npm else 'claude.exe'
+                                    _prt(f'\u2713 {label_file} replaced.', GRN)
                                 except OSError as e:
-                                    _prt(f'\u2717 Failed to replace exe: {e}', RED)
+                                    _prt(f'\u2717 Failed to replace file: {e}', RED)
                                     ok = False
                             if ok:
                                 save_patch_record(version=cur_ver, hash_val=cur_hash)
@@ -3185,4 +3503,9 @@ def main():
         cmd_interactive(args)   # default: interactive TUI
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
