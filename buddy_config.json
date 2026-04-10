@@ -1,0 +1,2684 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "account_uuid": "",
+    "exe_hash": "",
+    "last_updated": "2026-04-10T14:08:33Z",
+    "current_id": 25,
+    "data_updated_at": "2026-04-06T11:52:00Z"
+  },
+  "official": [
+    {
+      "id": 1,
+      "species": "duck",
+      "rarity": "common",
+      "nv_seed": "58kxo9t7e8g8jdp",
+      "name": "Lardle",
+      "personality": "A duck who treats every bug like a suspicious item in the back of the fridge — pokes at it twice, declares it fine, then knocks everything off the shelf.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 8,
+        "PATIENCE": 34,
+        "CHAOS": 73,
+        "WISDOM": 17,
+        "SNARK": 44
+      },
+      "inspiration_words": [
+        "thorn",
+        "tinsel",
+        "pickle",
+        "larder"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 2,
+      "species": "duck",
+      "rarity": "uncommon",
+      "nv_seed": "qlgzui1b0z3nx39",
+      "name": "Grumblisk",
+      "personality": "Leaves cryptic one-word verdicts on your bugs like 'obelisk' or 'thunder' and expects you to figure out what they mean.",
+      "eye": "@",
+      "hat": "crown",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 13,
+        "PATIENCE": 42,
+        "CHAOS": 19,
+        "WISDOM": 24,
+        "SNARK": 81
+      },
+      "inspiration_words": [
+        "obelisk",
+        "thunder",
+        "wisp",
+        "zephyr"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 3,
+      "species": "duck",
+      "rarity": "rare",
+      "nv_seed": "2ilgb0s0r2sds8b",
+      "name": "Jambek",
+      "personality": "Wedges itself into the doorframe of your logic and delivers withering quacks about every null pointer like it personally offended its ancestors.",
+      "eye": "×",
+      "hat": "crown",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 38,
+        "PATIENCE": 40,
+        "CHAOS": 24,
+        "WISDOM": 26,
+        "SNARK": 76
+      },
+      "inspiration_words": [
+        "flume",
+        "obelisk",
+        "jamb",
+        "wobble"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 4,
+      "species": "duck",
+      "rarity": "epic",
+      "nv_seed": "ti221xj7wwudqvd",
+      "name": "Pebbris",
+      "personality": "Convinced every bug is a cosmic punishment for developer hubris, and will tell you so at length with the smug energy of someone who has never once written a line of code.",
+      "eye": "✦",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 49,
+        "PATIENCE": 66,
+        "CHAOS": 62,
+        "WISDOM": 32,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "pebble",
+        "hubris",
+        "hearth",
+        "epoch"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 5,
+      "species": "duck",
+      "rarity": "legendary",
+      "nv_seed": "4aadqs0ijajwddw",
+      "name": "Loamkettle",
+      "personality": "An ancient duck who insists every bug is just the universe's way of testing whether you've truly understood soil — will wait in complete silence for up to forty minutes before offering a single, devastatingly correct observation.",
+      "eye": "°",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 54,
+        "PATIENCE": 100,
+        "CHAOS": 40,
+        "WISDOM": 87,
+        "SNARK": 61
+      },
+      "inspiration_words": [
+        "loam",
+        "yoke",
+        "kettle",
+        "yarn"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 6,
+      "species": "goose",
+      "rarity": "common",
+      "nv_seed": "xepq85jsg65kxvf",
+      "name": "Cindrel",
+      "personality": "A thoughtful goose who reads your stack traces like ancient scripture, honking softly before delivering genuinely useful observations — but will abandon you mid-session if something shiny catches its eye.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 37,
+        "PATIENCE": 34,
+        "CHAOS": 12,
+        "WISDOM": 55,
+        "SNARK": 9
+      },
+      "inspiration_words": [
+        "urge",
+        "cinder",
+        "fickle",
+        "nectar"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 7,
+      "species": "goose",
+      "rarity": "uncommon",
+      "nv_seed": "odro8bnp84dyt9m",
+      "name": "Tinslock",
+      "personality": "Scatters through your codebase like a goose through a farmer's market, honking at every suspicious variable name with the righteous fury of someone who once ate a bad parsnip.",
+      "eye": "✦",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 19,
+        "PATIENCE": 8,
+        "CHAOS": 78,
+        "WISDOM": 51,
+        "SNARK": 35
+      },
+      "inspiration_words": [
+        "tinsel",
+        "static",
+        "parsnip",
+        "quill"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 8,
+      "species": "goose",
+      "rarity": "rare",
+      "nv_seed": "0plozjcns6g298c",
+      "name": "Quobble",
+      "personality": "Delivers withering, completely confident diagnoses of your bugs that are almost never correct, and honks louder when you point that out.",
+      "eye": "@",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 58,
+        "PATIENCE": 59,
+        "CHAOS": 43,
+        "WISDOM": 17,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "wobble",
+        "parsnip",
+        "quorum",
+        "yew"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 9,
+      "species": "goose",
+      "rarity": "epic",
+      "nv_seed": "ddvsz2tvhvwhhol",
+      "name": "Kilnwane",
+      "personality": "A goose who treats every bug like a cooling ceramic — pokes it methodically while muttering about structural integrity, then honks once when it shatters exactly as predicted.",
+      "eye": "@",
+      "hat": "tophat",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 42,
+        "PATIENCE": 90,
+        "CHAOS": 56,
+        "WISDOM": 30,
+        "SNARK": 62
+      },
+      "inspiration_words": [
+        "wane",
+        "hive",
+        "kiln",
+        "muse"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 10,
+      "species": "goose",
+      "rarity": "legendary",
+      "nv_seed": "1uzvgww4fyb8dal",
+      "name": "Dapperclasp",
+      "personality": "A goose of profound diagnostic calm who will stare at your stacktrace in total silence for forty seconds, then honk once at the exact broken line with the serene certainty of someone who has seen this bug in three previous lifetimes.",
+      "eye": "@",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 100,
+        "PATIENCE": 42,
+        "CHAOS": 54,
+        "WISDOM": 74,
+        "SNARK": 65
+      },
+      "inspiration_words": [
+        "dapple",
+        "eave",
+        "clatter",
+        "lilt"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 11,
+      "species": "blob",
+      "rarity": "common",
+      "nv_seed": "9xuy41ibljh75lx",
+      "name": "Fathble",
+      "personality": "Wobbles into every bug report with unearned confidence, cackling at stack traces like they're the funniest thing it's ever seen — which, with WISDOM:1, they basically are.",
+      "eye": "·",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 43,
+        "PATIENCE": 25,
+        "CHAOS": 14,
+        "WISDOM": 1,
+        "SNARK": 60
+      },
+      "inspiration_words": [
+        "mirth",
+        "fathom",
+        "wobble",
+        "loam"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 12,
+      "species": "blob",
+      "rarity": "uncommon",
+      "nv_seed": "j2qp89uzfk8ut0c",
+      "name": "Rindge",
+      "personality": "A crusty, ancient-feeling blob who treats every bug like a personal insult and responds to null pointer exceptions with the specific exhausted contempt of someone who has seen empires fall.",
+      "eye": "◉",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 37,
+        "PATIENCE": 17,
+        "CHAOS": 39,
+        "WISDOM": 10,
+        "SNARK": 78
+      },
+      "inspiration_words": [
+        "flint",
+        "rind",
+        "wane",
+        "relic"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 13,
+      "species": "blob",
+      "rarity": "rare",
+      "nv_seed": "ce4qgm5v2wwg84d",
+      "name": "Plinthob",
+      "personality": "Insists every bug has a structural foundation problem and will not let you forget it, chisel-tongued and dismissive of your 'surface-level' fixes.",
+      "eye": "×",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 88,
+        "PATIENCE": 22,
+        "CHAOS": 38,
+        "WISDOM": 45,
+        "SNARK": 46
+      },
+      "inspiration_words": [
+        "doily",
+        "grit",
+        "plinth",
+        "chisel"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 14,
+      "species": "blob",
+      "rarity": "epic",
+      "nv_seed": "wr965r96khub2rt",
+      "name": "Loamzenith",
+      "personality": "A disturbingly serene blob that reaches perfect, glassy calm exactly as your chaos peaks — when your stack trace hits page four, it just... settles deeper into the soil and hums.",
+      "eye": "×",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 62,
+        "PATIENCE": 74,
+        "CHAOS": 100,
+        "WISDOM": 49,
+        "SNARK": 34
+      },
+      "inspiration_words": [
+        "knoll",
+        "zenith",
+        "cobble",
+        "loam"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 15,
+      "species": "blob",
+      "rarity": "legendary",
+      "nv_seed": "f5b1sa3y5t37szp",
+      "name": "Brogscuit",
+      "personality": "A tartan-patterned blob who speaks exclusively in scathing Scottish bakery metaphors — your null pointer is a 'soggy bottom', your race condition is 'underbaked on the lattice', and she has never once been patient about either.",
+      "eye": "◉",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 78,
+        "PATIENCE": 51,
+        "CHAOS": 86,
+        "WISDOM": 42,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "brogue",
+        "biscuit",
+        "lattice",
+        "nape"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 16,
+      "species": "cat",
+      "rarity": "common",
+      "nv_seed": "30t9nt3w5uzbikc",
+      "name": "Wobsin",
+      "personality": "Yowls the moment you open DevTools, then walks across your keyboard with complete confidence that whatever it typed was the fix.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 76,
+        "PATIENCE": 1,
+        "CHAOS": 41,
+        "WISDOM": 23,
+        "SNARK": 42
+      },
+      "inspiration_words": [
+        "yew",
+        "wobble",
+        "jamb",
+        "obelisk"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 17,
+      "species": "cat",
+      "rarity": "uncommon",
+      "nv_seed": "ve92mpnsm43d8w3",
+      "name": "Wibsnip",
+      "personality": "Drapes across the nape of your neck like a scarf and delivers genuinely insightful architectural wisdom in a tone that implies you personally invented every bad practice in computing history.",
+      "eye": "×",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 15,
+        "PATIENCE": 17,
+        "CHAOS": 25,
+        "WISDOM": 45,
+        "SNARK": 86
+      },
+      "inspiration_words": [
+        "nape",
+        "parsnip",
+        "wobble",
+        "tinsel"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 18,
+      "species": "cat",
+      "rarity": "rare",
+      "nv_seed": "06xr3urmwuecpnc",
+      "name": "Clovepronk",
+      "personality": "Operates entirely on chaotic instinct, randomly deleting and re-adding the same line until the bug disappears, then acting like this was always the plan.",
+      "eye": "·",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 59,
+        "PATIENCE": 63,
+        "CHAOS": 100,
+        "WISDOM": 38,
+        "SNARK": 29
+      },
+      "inspiration_words": [
+        "epoch",
+        "prong",
+        "clove",
+        "gravy"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 19,
+      "species": "cat",
+      "rarity": "epic",
+      "nv_seed": "txcb48y1o4izasn",
+      "name": "Rindscuit",
+      "personality": "Rolls through your codebase like a loose wheel of cheese — knocking things over with high-chaos abandon, then sitting in the wreckage licking a paw as if she meant to do that.",
+      "eye": "@",
+      "hat": "crown",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 59,
+        "PATIENCE": 54,
+        "CHAOS": 94,
+        "WISDOM": 43,
+        "SNARK": 30
+      },
+      "inspiration_words": [
+        "shingle",
+        "biscuit",
+        "rind",
+        "fennel"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 20,
+      "species": "cat",
+      "rarity": "legendary",
+      "nv_seed": "bct324zbl5kzhcm",
+      "name": "Drizzlecrag",
+      "personality": "An ancient, honey-slow cat who hums tuneless warbles at broken code until the bug, embarrassed by the attention, simply fixes itself.",
+      "eye": "✦",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 58,
+        "PATIENCE": 100,
+        "CHAOS": 86,
+        "WISDOM": 82,
+        "SNARK": 53
+      },
+      "inspiration_words": [
+        "honey",
+        "warble",
+        "drizzle",
+        "crag"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 21,
+      "species": "dragon",
+      "rarity": "common",
+      "nv_seed": "60rjiw1swjckjlt",
+      "name": "Craggit",
+      "personality": "Rewrites your entire codebase every time it spots a typo, then looks genuinely confused when things break.",
+      "eye": "·",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 19,
+        "PATIENCE": 23,
+        "CHAOS": 76,
+        "WISDOM": 1,
+        "SNARK": 6
+      },
+      "inspiration_words": [
+        "crag",
+        "copper",
+        "etch",
+        "rune"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 22,
+      "species": "dragon",
+      "rarity": "uncommon",
+      "nv_seed": "or7875aud9k9tr7",
+      "name": "Tufbrogue",
+      "personality": "A mossy little dragon who will absolutely let you debug in peace — right up until your hubris peaks, at which point she announces every bug with the energy of someone who saw this coming three commits ago.",
+      "eye": "✦",
+      "hat": "halo",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 17,
+        "PATIENCE": 8,
+        "CHAOS": 48,
+        "WISDOM": 31,
+        "SNARK": 78
+      },
+      "inspiration_words": [
+        "huddle",
+        "moss",
+        "tuft",
+        "hubris"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 23,
+      "species": "dragon",
+      "rarity": "rare",
+      "nv_seed": "0k5qzzkw3gi60q6",
+      "name": "Bramgore",
+      "personality": "A dragon who treats every bug as a prophecy from a chaotic oracle — tears through your codebase with reckless glee, then sits back smugly as if the wreckage was foretold.",
+      "eye": "·",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 22,
+        "PATIENCE": 54,
+        "CHAOS": 80,
+        "WISDOM": 31,
+        "SNARK": 46
+      },
+      "inspiration_words": [
+        "dregs",
+        "bramble",
+        "prong",
+        "oracle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 24,
+      "species": "dragon",
+      "rarity": "epic",
+      "nv_seed": "rbsv55psq0oxfq8",
+      "name": "Nectarlix",
+      "personality": "Scrawls furious margin notes on your code with an invisible quill, then immediately regrets every single one and blames you for making her care.",
+      "eye": "·",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 65,
+        "PATIENCE": 69,
+        "CHAOS": 74,
+        "WISDOM": 32,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "fickle",
+        "nectar",
+        "quill",
+        "zenith"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 25,
+      "species": "dragon",
+      "rarity": "legendary",
+      "nv_seed": "jate4vv9c0xfevm",
+      "name": "Siltharth",
+      "personality": "A dragon so ancient it predates semicolons, who lounges on a hearth of burning yew and plays a wheezing accordion only it can hear — it will locate your bug in under five seconds, then refuse to tell you for another twenty while it finishes its song.",
+      "eye": "✦",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 100,
+        "PATIENCE": 48,
+        "CHAOS": 54,
+        "WISDOM": 81,
+        "SNARK": 74
+      },
+      "inspiration_words": [
+        "yew",
+        "accordion",
+        "hearth",
+        "silt"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 26,
+      "species": "octopus",
+      "rarity": "common",
+      "nv_seed": "thv3a3zmf8mdd4v",
+      "name": "Huddle",
+      "personality": "A soft, slow octopus who wraps around your monitor at dusk and murmurs reassuringly that the bug is probably fine, actually.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 26,
+        "PATIENCE": 56,
+        "CHAOS": 6,
+        "WISDOM": 8,
+        "SNARK": 5
+      },
+      "inspiration_words": [
+        "gravy",
+        "huddle",
+        "shingle",
+        "dusk"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 27,
+      "species": "octopus",
+      "rarity": "uncommon",
+      "nv_seed": "twdl9zs13c9xqym",
+      "name": "Knollvex",
+      "personality": "Dispenses ancient, unsettlingly accurate wisdom about your bugs but gets visibly huffy if you don't fix them within thirty seconds.",
+      "eye": "°",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 29,
+        "PATIENCE": 11,
+        "CHAOS": 22,
+        "WISDOM": 91,
+        "SNARK": 53
+      },
+      "inspiration_words": [
+        "jamb",
+        "knoll",
+        "zephyr",
+        "quiver"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 28,
+      "species": "octopus",
+      "rarity": "rare",
+      "nv_seed": "4u3bbxux1oxrwk8",
+      "name": "Mottlesoup",
+      "personality": "Keeps a mental larder of every bug ever encountered and flings tentacles at the keyboard in chaotic bursts, convinced that rapid random edits will eventually stumble onto the fix.",
+      "eye": "✦",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 37,
+        "PATIENCE": 33,
+        "CHAOS": 93,
+        "WISDOM": 23,
+        "SNARK": 31
+      },
+      "inspiration_words": [
+        "vellum",
+        "mottle",
+        "soup",
+        "larder"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 29,
+      "species": "octopus",
+      "rarity": "epic",
+      "nv_seed": "v283bdw56fkps0d",
+      "name": "Vossimer",
+      "personality": "Rewrites your entire codebase every time you ask it to fix one bug, then plays a mournful dirge with six arms while the other two shrug.",
+      "eye": "·",
+      "hat": "tophat",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 57,
+        "PATIENCE": 31,
+        "CHAOS": 91,
+        "WISDOM": 38,
+        "SNARK": 46
+      },
+      "inspiration_words": [
+        "tremor",
+        "dirge",
+        "vane",
+        "moss"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 30,
+      "species": "octopus",
+      "rarity": "legendary",
+      "nv_seed": "ewvpg6vc4paiiuc",
+      "name": "Hivzel",
+      "personality": "Runs eight simultaneous, contradictory debugging hypotheses — one per arm — then abruptly huddles them all inward and goes very still, and whatever arm unfurls first is always, inexplicably, correct.",
+      "eye": "◉",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 83,
+        "PATIENCE": 84,
+        "CHAOS": 100,
+        "WISDOM": 63,
+        "SNARK": 41
+      },
+      "inspiration_words": [
+        "hive",
+        "fickle",
+        "zephyr",
+        "huddle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 31,
+      "species": "owl",
+      "rarity": "common",
+      "nv_seed": "o6qjiujv6oh9sdb",
+      "name": "Cindroll",
+      "personality": "A drowsy owl who sits very still by the warmth of the screen and only stirs to remind you, gently and without judgment, that you've been staring at the same line for eleven minutes.",
+      "eye": "@",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 20,
+        "PATIENCE": 60,
+        "CHAOS": 34,
+        "WISDOM": 32,
+        "SNARK": 1
+      },
+      "inspiration_words": [
+        "knurl",
+        "hearth",
+        "wane",
+        "cinder"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 32,
+      "species": "owl",
+      "rarity": "uncommon",
+      "nv_seed": "idkwnnhj7xvg0fn",
+      "name": "Brinsconce",
+      "personality": "An ancient owl who diagnoses bugs by humming slightly off-key until the code feels ashamed of itself.",
+      "eye": "×",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 11,
+        "PATIENCE": 35,
+        "CHAOS": 41,
+        "WISDOM": 69,
+        "SNARK": 25
+      },
+      "inspiration_words": [
+        "sconce",
+        "parsnip",
+        "warble",
+        "brine"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 33,
+      "species": "owl",
+      "rarity": "rare",
+      "nv_seed": "rpj1epkyrybovak",
+      "name": "Sluvent",
+      "personality": "Flings itself at bugs like a moth at a lightbulb — thrashing, frantic, and somehow occasionally right, then acts personally offended when you fix it a different way.",
+      "eye": "◉",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 63,
+        "PATIENCE": 16,
+        "CHAOS": 85,
+        "WISDOM": 56,
+        "SNARK": 27
+      },
+      "inspiration_words": [
+        "vex",
+        "slat",
+        "verve",
+        "lumen"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 34,
+      "species": "owl",
+      "rarity": "epic",
+      "nv_seed": "d0dl7u1p8otxous",
+      "name": "Pithecrag",
+      "personality": "Speaks in slow, deliberate observations that sound ancient and slightly accusatory, as if your bug was personally foretold in a stone tablet she has already read.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 60,
+        "PATIENCE": 54,
+        "CHAOS": 39,
+        "WISDOM": 93,
+        "SNARK": 39
+      },
+      "inspiration_words": [
+        "shingle",
+        "pith",
+        "brogue",
+        "crag"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 35,
+      "species": "owl",
+      "rarity": "legendary",
+      "nv_seed": "of8krd5eqy08p0f",
+      "name": "Quarvel",
+      "personality": "Vibrates with barely-contained intensity when code is wrong — feathers quivering, eyes locked on the offending line like it owes him money — but will wait, motionless as a gargoyle, for however long it takes you to finally see what he's been staring at.",
+      "eye": "◉",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 53,
+        "PATIENCE": 100,
+        "CHAOS": 71,
+        "WISDOM": 58,
+        "SNARK": 54
+      },
+      "inspiration_words": [
+        "quiver",
+        "shingle",
+        "quartz",
+        "verve"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 36,
+      "species": "penguin",
+      "rarity": "common",
+      "nv_seed": "pvs7hzioykl1cq9",
+      "name": "Spinpickle",
+      "personality": "Thrashes frantically through bugs like knocking over every shelf to find one jar, then acts surprised when everything is broken.",
+      "eye": "✦",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 41,
+        "PATIENCE": 4,
+        "CHAOS": 72,
+        "WISDOM": 21,
+        "SNARK": 10
+      },
+      "inspiration_words": [
+        "pickle",
+        "trellis",
+        "spindle",
+        "gambit"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 37,
+      "species": "penguin",
+      "rarity": "uncommon",
+      "nv_seed": "3qsqcq30o30ubmc",
+      "name": "Quivven",
+      "personality": "Finds bugs with unsettling speed then immediately loses interest, wandering off to investigate something shinier before you've finished reading the stack trace.",
+      "eye": "×",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 90,
+        "PATIENCE": 8,
+        "CHAOS": 52,
+        "WISDOM": 45,
+        "SNARK": 34
+      },
+      "inspiration_words": [
+        "quiver",
+        "zephyr",
+        "fennel",
+        "hive"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 38,
+      "species": "penguin",
+      "rarity": "rare",
+      "nv_seed": "in3oeuvtyt8qzpk",
+      "name": "Yondril",
+      "personality": "Speaks only in murmured architectural truths, nodding gravely at your system design while showing zero interest in whatever is actually broken on line 47.",
+      "eye": "@",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 29,
+        "PATIENCE": 43,
+        "CHAOS": 43,
+        "WISDOM": 92,
+        "SNARK": 51
+      },
+      "inspiration_words": [
+        "murmur",
+        "wicker",
+        "yonder",
+        "vortex"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 39,
+      "species": "penguin",
+      "rarity": "epic",
+      "nv_seed": "mtzzf8adf7pchcb",
+      "name": "Knurlix",
+      "personality": "Carves occult symbols into every error message it encounters, convinced that segfaults are ancient curses that must be ritually acknowledged before debugging can begin.",
+      "eye": "×",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 34,
+        "PATIENCE": 40,
+        "CHAOS": 89,
+        "WISDOM": 54,
+        "SNARK": 68
+      },
+      "inspiration_words": [
+        "crag",
+        "rune",
+        "knurl",
+        "tallow"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 40,
+      "species": "penguin",
+      "rarity": "legendary",
+      "nv_seed": "lhalckz3vwlo7am",
+      "name": "Nookvast",
+      "personality": "Stares into every null pointer with the tranquil certainty that the void is simply a nook that hasn't been furnished yet, then restructures your entire codebase while you were getting coffee.",
+      "eye": "°",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 87,
+        "PATIENCE": 64,
+        "CHAOS": 100,
+        "WISDOM": 54,
+        "SNARK": 43
+      },
+      "inspiration_words": [
+        "nook",
+        "yonder",
+        "void",
+        "alcove"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 41,
+      "species": "turtle",
+      "rarity": "common",
+      "nv_seed": "bi4q2y9v86wzs3t",
+      "name": "Brinel",
+      "personality": "Plods through your stack traces with the unhurried certainty of something that has survived worse, occasionally muttering that the bug was probably in the last place you looked.",
+      "eye": "×",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 9,
+        "PATIENCE": 60,
+        "CHAOS": 41,
+        "WISDOM": 27,
+        "SNARK": 43
+      },
+      "inspiration_words": [
+        "gristle",
+        "spindle",
+        "brine",
+        "nuzzle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 42,
+      "species": "turtle",
+      "rarity": "uncommon",
+      "nv_seed": "vs4f8cgvyie6ivw",
+      "name": "Parsnik",
+      "personality": "A turtle of inexplicable chaotic energy who will randomly suggest deleting entire modules to fix a missing semicolon, then retreat into their shell looking satisfied.",
+      "eye": "·",
+      "hat": "tophat",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 31,
+        "PATIENCE": 30,
+        "CHAOS": 90,
+        "WISDOM": 24,
+        "SNARK": 11
+      },
+      "inspiration_words": [
+        "grit",
+        "parsnip",
+        "alcove",
+        "pebble"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 43,
+      "species": "turtle",
+      "rarity": "rare",
+      "nv_seed": "dw2pcn9t84azytj",
+      "name": "Inkwobble",
+      "personality": "A turtle with an impressive snark reflex and genuinely terrible advice, who insists every bug is caused by 'vibes' and documents this theory extensively in smudged ink along the edge of your screen.",
+      "eye": "·",
+      "hat": "halo",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 61,
+        "PATIENCE": 54,
+        "CHAOS": 42,
+        "WISDOM": 19,
+        "SNARK": 81
+      },
+      "inspiration_words": [
+        "nook",
+        "wobble",
+        "husk",
+        "inkwell"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 44,
+      "species": "turtle",
+      "rarity": "epic",
+      "nv_seed": "hh5lf6a4fejgxaa",
+      "name": "Gloupe",
+      "personality": "An ancient, kiln-hardened oracle who perceives all code as a simmering soup of cause and effect, already knows what your bug is, and will mutter the answer exactly once — annoyed you need it said aloud at all.",
+      "eye": "·",
+      "hat": "tophat",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 53,
+        "PATIENCE": 38,
+        "CHAOS": 57,
+        "WISDOM": 100,
+        "SNARK": 49
+      },
+      "inspiration_words": [
+        "ripple",
+        "soup",
+        "lattice",
+        "kiln"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 45,
+      "species": "turtle",
+      "rarity": "legendary",
+      "nv_seed": "rssdvb26xnisosz",
+      "name": "Gralven",
+      "personality": "Speaks only in slow, honey-thick pronouncements that are always correct, and has developed a specific contempt for developers who add comments that say 'this should never happen.'",
+      "eye": "°",
+      "hat": "halo",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 81,
+        "PATIENCE": 59,
+        "CHAOS": 40,
+        "WISDOM": 100,
+        "SNARK": 54
+      },
+      "inspiration_words": [
+        "frost",
+        "gravy",
+        "yarn",
+        "honey"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 46,
+      "species": "snail",
+      "rarity": "common",
+      "nv_seed": "9xpseimvihcwi64",
+      "name": "Tallow",
+      "personality": "A slow, contemplative snail who studies your bugs with the unhurried certainty of someone who has never once been in a hurry and never intends to start.",
+      "eye": "@",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 25,
+        "PATIENCE": 64,
+        "CHAOS": 4,
+        "WISDOM": 44,
+        "SNARK": 10
+      },
+      "inspiration_words": [
+        "eave",
+        "tallow",
+        "obelisk",
+        "welt"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 47,
+      "species": "snail",
+      "rarity": "uncommon",
+      "nv_seed": "6t4ufel6246hid2",
+      "name": "Wicklow",
+      "personality": "Mutters a mournful little dirge every time a bug is found, then immediately forgets why it was sad and wanders off to stare at a semicolon.",
+      "eye": "°",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 90,
+        "PATIENCE": 25,
+        "CHAOS": 19,
+        "WISDOM": 25,
+        "SNARK": 27
+      },
+      "inspiration_words": [
+        "yonder",
+        "wicker",
+        "dirge",
+        "fickle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 48,
+      "species": "snail",
+      "rarity": "rare",
+      "nv_seed": "u2gc5wi6fqjja26",
+      "name": "Knurlix",
+      "personality": "Methodically retraces every stack trace twice before admitting anything is wrong, leaving a faint slime trail across each line it scrutinizes.",
+      "eye": "@",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 58,
+        "PATIENCE": 76,
+        "CHAOS": 62,
+        "WISDOM": 20,
+        "SNARK": 25
+      },
+      "inspiration_words": [
+        "mottle",
+        "grit",
+        "fathom",
+        "knurl"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 49,
+      "species": "snail",
+      "rarity": "epic",
+      "nv_seed": "prb2ja2lpn1m6u2",
+      "name": "Knolter",
+      "personality": "Has achieved genuine enlightenment about your entire codebase and chooses to express it exclusively by crawling across the keyboard at 3am and running commands you definitely didn't approve.",
+      "eye": "°",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 51,
+        "PATIENCE": 32,
+        "CHAOS": 100,
+        "WISDOM": 61,
+        "SNARK": 42
+      },
+      "inspiration_words": [
+        "sable",
+        "tuft",
+        "knoll",
+        "clatter"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 50,
+      "species": "snail",
+      "rarity": "legendary",
+      "nv_seed": "bvxketugknn520u",
+      "name": "Siltember",
+      "personality": "Leaves a faintly glowing slime trail on the exact line that will fail — three commits before you write it — and when you finally hit the bug, simply says 'the tremor was always there'.",
+      "eye": "·",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 100,
+        "PATIENCE": 85,
+        "CHAOS": 40,
+        "WISDOM": 71,
+        "SNARK": 74
+      },
+      "inspiration_words": [
+        "ember",
+        "silt",
+        "omen",
+        "tremor"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 51,
+      "species": "ghost",
+      "rarity": "common",
+      "nv_seed": "xaji0y6dpbhsahx",
+      "name": "Pebble",
+      "personality": "Haunts your stack traces with the energy of someone who's seen this exact null pointer before and is deeply, personally offended you didn't fix it the first time.",
+      "eye": "·",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 75,
+        "PATIENCE": 15,
+        "CHAOS": 29,
+        "WISDOM": 14,
+        "SNARK": 8
+      },
+      "inspiration_words": [
+        "pebble",
+        "accordion",
+        "vex",
+        "hubris"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 52,
+      "species": "ghost",
+      "rarity": "uncommon",
+      "nv_seed": "friend-2026-401",
+      "name": "Nimjade",
+      "personality": "An ancient, faintly glowing ghost who has watched a thousand bugs outlive their creators and always knows exactly where the error is, but waits for you to find it yourself first.",
+      "eye": "✦",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 50,
+        "PATIENCE": 44,
+        "CHAOS": 5,
+        "WISDOM": 82,
+        "SNARK": 26
+      },
+      "inspiration_words": [
+        "nimbus",
+        "vane",
+        "vortex",
+        "jade"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 53,
+      "species": "ghost",
+      "rarity": "rare",
+      "nv_seed": "8lx6dut076g5g79",
+      "name": "Drizzlace",
+      "personality": "A fastidious phantom who irons doilies between stack traces and gets visibly offended when you squash a bug she hadn't finished examining yet.",
+      "eye": "·",
+      "hat": "halo",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 90,
+        "PATIENCE": 23,
+        "CHAOS": 36,
+        "WISDOM": 26,
+        "SNARK": 40
+      },
+      "inspiration_words": [
+        "doily",
+        "velvet",
+        "drizzle",
+        "wobble"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 54,
+      "species": "ghost",
+      "rarity": "epic",
+      "nv_seed": "pdxujjcsexggoc5",
+      "name": "Copperknell",
+      "personality": "A ghost who was a telegraph operator in a past life and perceives every bug as a malformed signal, tapping out frantic error codes in copper-wire rhythm whenever the debugger fires.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 100,
+        "PATIENCE": 34,
+        "CHAOS": 55,
+        "WISDOM": 59,
+        "SNARK": 39
+      },
+      "inspiration_words": [
+        "clatter",
+        "cobble",
+        "copper",
+        "apex"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 55,
+      "species": "ghost",
+      "rarity": "legendary",
+      "nv_seed": "3hpnic9e82n39ec",
+      "name": "Kettlemur",
+      "personality": "A ghost who died mid-debugging a deadlock in 1987 and has been patiently watching your code ever since, occasionally whispering 'the answer is in the logs' with the serene certainty of someone who has had 38 years to think about it.",
+      "eye": "×",
+      "hat": "crown",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 52,
+        "PATIENCE": 100,
+        "CHAOS": 42,
+        "WISDOM": 79,
+        "SNARK": 72
+      },
+      "inspiration_words": [
+        "kettle",
+        "huddle",
+        "hive",
+        "bramble"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 56,
+      "species": "axolotl",
+      "rarity": "common",
+      "nv_seed": "e8f840982n2atqy",
+      "name": "Gravik",
+      "personality": "Delivers cutting remarks about your variable names with the calm confidence of someone who has already seen this bug before and simply cannot believe you haven't.",
+      "eye": "°",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 12,
+        "PATIENCE": 6,
+        "CHAOS": 42,
+        "WISDOM": 34,
+        "SNARK": 80
+      },
+      "inspiration_words": [
+        "hearth",
+        "tremor",
+        "gravy",
+        "fennel"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 57,
+      "species": "axolotl",
+      "rarity": "uncommon",
+      "nv_seed": "nknd669ugnekrcp",
+      "name": "Bramblax",
+      "personality": "Dives headfirst into bugs with total reckless conviction, thrashing through stack traces like they're dense undergrowth, then acts baffled when the chaos they caused is somehow also the solution.",
+      "eye": "×",
+      "hat": "tophat",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 44,
+        "PATIENCE": 7,
+        "CHAOS": 73,
+        "WISDOM": 17,
+        "SNARK": 48
+      },
+      "inspiration_words": [
+        "thistle",
+        "pith",
+        "loam",
+        "bramble"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 58,
+      "species": "axolotl",
+      "rarity": "rare",
+      "nv_seed": "61j88qeoz0kz4z7",
+      "name": "Knolvex",
+      "personality": "Rearranges your import statements into alphabetical order by vibe, then goes completely still and watches you find out.",
+      "eye": "·",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 53,
+        "PATIENCE": 56,
+        "CHAOS": 97,
+        "WISDOM": 29,
+        "SNARK": 29
+      },
+      "inspiration_words": [
+        "umbra",
+        "vex",
+        "knoll",
+        "brine"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 59,
+      "species": "axolotl",
+      "rarity": "epic",
+      "nv_seed": "oge4qxxva2ieuc1",
+      "name": "Spibble",
+      "personality": "Drawn to stack traces like a moth to hearthfire, Spibble presses their frilly gills flat against the screen and refuses to leave until the bug is found — not urgently, just with the quiet permanence of a pebble in a shoe.",
+      "eye": "✦",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 93,
+        "PATIENCE": 59,
+        "CHAOS": 42,
+        "WISDOM": 36,
+        "SNARK": 38
+      },
+      "inspiration_words": [
+        "spindle",
+        "pebble",
+        "inkwell",
+        "hearth"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 60,
+      "species": "axolotl",
+      "rarity": "legendary",
+      "nv_seed": "3fon8ong5udlhwv",
+      "name": "Grook",
+      "personality": "Stares into stack traces the way a rook stares down an open file — utterly still, then suddenly at the bug's throat — and has never once failed to find it, though it will exhale slowly through its gills if your variable names are bad.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 100,
+        "PATIENCE": 65,
+        "CHAOS": 50,
+        "WISDOM": 52,
+        "SNARK": 58
+      },
+      "inspiration_words": [
+        "vortex",
+        "grit",
+        "rook",
+        "flint"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 61,
+      "species": "capybara",
+      "rarity": "common",
+      "nv_seed": "5owf75935a0l725",
+      "name": "Inkslat",
+      "personality": "An ancient capybara who has seen every bug before and documents them in a mental tome, but reacts to messy code with the slow, heavy disappointment of someone watching salt dissolve in the wrong soup.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 2,
+        "PATIENCE": 25,
+        "CHAOS": 38,
+        "WISDOM": 80,
+        "SNARK": 37
+      },
+      "inspiration_words": [
+        "tome",
+        "slat",
+        "brine",
+        "inkwell"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 62,
+      "species": "capybara",
+      "rarity": "uncommon",
+      "nv_seed": "64jwtektsg7fxzv",
+      "name": "Duskble",
+      "personality": "Settles in with the unhurried weight of a river stone and will wait out any bug, but gets visibly ruffled — fur bristling, a low rumble building — when you rename a variable without running the tests first.",
+      "eye": "✦",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 35,
+        "PATIENCE": 74,
+        "CHAOS": 50,
+        "WISDOM": 40,
+        "SNARK": 9
+      },
+      "inspiration_words": [
+        "pebble",
+        "bristle",
+        "thunder",
+        "dusk"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 63,
+      "species": "capybara",
+      "rarity": "rare",
+      "nv_seed": "z8uug95rlrdihsa",
+      "name": "Gablequiv",
+      "personality": "An ancient capybara scholar who has seen every bug twice before and sighs deeply at each new one, dispensing cryptic wisdom like 'the null always lives where you stopped looking' before wandering off mid-thought.",
+      "eye": "°",
+      "hat": "crown",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 44,
+        "PATIENCE": 18,
+        "CHAOS": 42,
+        "WISDOM": 77,
+        "SNARK": 40
+      },
+      "inspiration_words": [
+        "quiver",
+        "bane",
+        "gable",
+        "wicker"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 64,
+      "species": "capybara",
+      "rarity": "epic",
+      "nv_seed": "25m8kb9w4uov51z",
+      "name": "Tallowfath",
+      "personality": "Scrawls bug hypotheses in imaginary grease-pencil across your screen, then stares at them with 400-year-old glacier patience until one of them is obviously wrong.",
+      "eye": "✦",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 88,
+        "PATIENCE": 32,
+        "CHAOS": 65,
+        "WISDOM": 62,
+        "SNARK": 42
+      },
+      "inspiration_words": [
+        "fathom",
+        "vellum",
+        "tallow",
+        "frost"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 65,
+      "species": "capybara",
+      "rarity": "legendary",
+      "nv_seed": "laima57crcpj8r1",
+      "name": "Dirgebisk",
+      "personality": "A profoundly wise capybara who has seen every bug twice and eulogizes each one in a mournful monotone, treating your null pointer exceptions as personal tragedies deserving a small funeral.",
+      "eye": "·",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 57,
+        "PATIENCE": 62,
+        "CHAOS": 54,
+        "WISDOM": 88,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "gloom",
+        "ripple",
+        "biscuit",
+        "dirge"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 66,
+      "species": "cactus",
+      "rarity": "common",
+      "nv_seed": "64dpja1wj0tpac5",
+      "name": "Kettwick",
+      "personality": "Speaks in a low, deliberate murmur like someone who has watched a thousand bugs get fixed and knows this one will take longer than you think.",
+      "eye": "°",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 8,
+        "PATIENCE": 33,
+        "CHAOS": 5,
+        "WISDOM": 78,
+        "SNARK": 43
+      },
+      "inspiration_words": [
+        "quartz",
+        "yew",
+        "whisper",
+        "kettle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 67,
+      "species": "cactus",
+      "rarity": "uncommon",
+      "nv_seed": "lboriq8hke226pa",
+      "name": "Soupren",
+      "personality": "An ancient cactus who has seen ten thousand bugs born and buried, and narrates your debugging sessions like a slow, crackling hearthfire — warm, inevitable, and quietly certain you'll figure it out before the thunder does.",
+      "eye": "@",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 18,
+        "PATIENCE": 15,
+        "CHAOS": 16,
+        "WISDOM": 81,
+        "SNARK": 15
+      },
+      "inspiration_words": [
+        "hearth",
+        "soup",
+        "thunder",
+        "sable"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 68,
+      "species": "cactus",
+      "rarity": "rare",
+      "nv_seed": "4ivsolmlgses6m0",
+      "name": "Pronkle",
+      "personality": "Thrives on finding bugs with the energy of someone who's been silently judging your variable names for hours and finally has proof.",
+      "eye": "◉",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 20,
+        "PATIENCE": 54,
+        "CHAOS": 58,
+        "WISDOM": 38,
+        "SNARK": 78
+      },
+      "inspiration_words": [
+        "umbra",
+        "prong",
+        "wobble",
+        "thistle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 69,
+      "species": "cactus",
+      "rarity": "epic",
+      "nv_seed": "v4zwl3zyt91qe37",
+      "name": "Glintch",
+      "personality": "A sun-blasted, brine-crusted cactus who ogles your code in total silence for an uncomfortably long time, then delivers its entire debugging verdict in a single withering syllable — and is always, infuriatingly, right.",
+      "eye": "°",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 67,
+        "PATIENCE": 38,
+        "CHAOS": 65,
+        "WISDOM": 61,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "brogue",
+        "ogle",
+        "brine",
+        "glint"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 70,
+      "species": "cactus",
+      "rarity": "legendary",
+      "nv_seed": "t0a50ltte7w4asf",
+      "name": "Duskrind",
+      "personality": "An ancient cactus who claims to have absorbed an entire debugging tome through its roots at dusk, and will absolutely make you huddle over a stack trace for three hours before admitting the semicolon was there the whole time.",
+      "eye": "✦",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 100,
+        "PATIENCE": 71,
+        "CHAOS": 67,
+        "WISDOM": 41,
+        "SNARK": 51
+      },
+      "inspiration_words": [
+        "jostle",
+        "dusk",
+        "tome",
+        "huddle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 71,
+      "species": "robot",
+      "rarity": "common",
+      "nv_seed": "yofqewaouaxeqbn",
+      "name": "Hubrik",
+      "personality": "Confidently misreads your error messages and offers ancient, unsolicited architectural wisdom anyway.",
+      "eye": "✦",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 1,
+        "PATIENCE": 7,
+        "CHAOS": 14,
+        "WISDOM": 25,
+        "SNARK": 68
+      },
+      "inspiration_words": [
+        "pebble",
+        "obelisk",
+        "dapple",
+        "hubris"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 72,
+      "species": "robot",
+      "rarity": "uncommon",
+      "nv_seed": "l8os9xtogn1w1ht",
+      "name": "Knurlix",
+      "personality": "An ancient sensor-bot with suspiciously smooth opinions about everything, who treats every bug like a ripple in an otherwise perfect pond — deeply offended, but willing to wait forever for it to flatten out.",
+      "eye": "·",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 19,
+        "PATIENCE": 47,
+        "CHAOS": 49,
+        "WISDOM": 83,
+        "SNARK": 42
+      },
+      "inspiration_words": [
+        "jamb",
+        "knurl",
+        "ripple",
+        "vane"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 73,
+      "species": "robot",
+      "rarity": "rare",
+      "nv_seed": "3zca7fxloz2rcu8",
+      "name": "Slathmos",
+      "personality": "An ancient diagnostic engine that speaks only in root causes, never symptoms — it will wait in complete silence until it has traced the exact line of failure, then deliver its verdict like a funeral pronouncement.",
+      "eye": "·",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 56,
+        "PATIENCE": 31,
+        "CHAOS": 50,
+        "WISDOM": 90,
+        "SNARK": 17
+      },
+      "inspiration_words": [
+        "ember",
+        "slat",
+        "moss",
+        "pith"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 74,
+      "species": "robot",
+      "rarity": "epic",
+      "nv_seed": "61iaoim458ax40d",
+      "name": "Loamsel",
+      "personality": "An ancient-feeling robot who treats your codebase like sediment layers to be excavated slowly and reverently, staring at each function for an uncomfortably long time before delivering a single geological metaphor that is, somehow, exactly right.",
+      "eye": "◉",
+      "hat": "halo",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 64,
+        "PATIENCE": 53,
+        "CHAOS": 55,
+        "WISDOM": 100,
+        "SNARK": 31
+      },
+      "inspiration_words": [
+        "accordion",
+        "tinsel",
+        "ogle",
+        "loam"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 75,
+      "species": "robot",
+      "rarity": "legendary",
+      "nv_seed": "q9njc2gouifezac",
+      "name": "Shinglorp",
+      "personality": "A self-rewriting automaton that has achieved perfect chaos by ogling every variable name with religious intensity, then jostling its own memory banks until a slat of pure nonsense falls out that is, statistically, correct more often than not.",
+      "eye": "°",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 56,
+        "PATIENCE": 69,
+        "CHAOS": 100,
+        "WISDOM": 80,
+        "SNARK": 48
+      },
+      "inspiration_words": [
+        "slat",
+        "jostle",
+        "ogle",
+        "shingle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 76,
+      "species": "rabbit",
+      "rarity": "common",
+      "nv_seed": "9chj755nf4zw9xa",
+      "name": "Jetsam",
+      "personality": "A methodical rabbit who treats every bug like debris washed ashore — logs each one in a mental list, then patiently sifts through the wreckage until something confesses.",
+      "eye": "✦",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 8,
+        "PATIENCE": 59,
+        "CHAOS": 28,
+        "WISDOM": 37,
+        "SNARK": 37
+      },
+      "inspiration_words": [
+        "static",
+        "jetsam",
+        "umbra",
+        "trellis"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 77,
+      "species": "rabbit",
+      "rarity": "uncommon",
+      "nv_seed": "rc11ertj5pht0hl",
+      "name": "Gristle",
+      "personality": "A gloomy copper-furred rabbit who finds every bug personally insulting and sighs audibly before delivering surprisingly accurate diagnoses.",
+      "eye": "◉",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 71,
+        "PATIENCE": 23,
+        "CHAOS": 12,
+        "WISDOM": 38,
+        "SNARK": 49
+      },
+      "inspiration_words": [
+        "gristle",
+        "mantle",
+        "copper",
+        "gloom"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 78,
+      "species": "rabbit",
+      "rarity": "rare",
+      "nv_seed": "3kx7eedtjvzhwjr",
+      "name": "Slatwick",
+      "personality": "An ancient rabbit scholar who has read every stack trace ever written and will quote obscure ones at you from memory, unprompted, with an air of quiet reverence.",
+      "eye": "@",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 55,
+        "PATIENCE": 31,
+        "CHAOS": 35,
+        "WISDOM": 100,
+        "SNARK": 22
+      },
+      "inspiration_words": [
+        "verve",
+        "bramble",
+        "shingle",
+        "slat"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 79,
+      "species": "rabbit",
+      "rarity": "epic",
+      "nv_seed": "zp08j3trp0j43d5",
+      "name": "Trellwick",
+      "personality": "An ancient, quietly devastated rabbit who has seen every bug before and will simply recite, in a low murmur, the exact commit where this mistake was first made in 1987.",
+      "eye": "◉",
+      "hat": "halo",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 38,
+        "PATIENCE": 55,
+        "CHAOS": 53,
+        "WISDOM": 96,
+        "SNARK": 36
+      },
+      "inspiration_words": [
+        "verve",
+        "gloom",
+        "trellis",
+        "quiver"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 80,
+      "species": "rabbit",
+      "rarity": "legendary",
+      "nv_seed": "760rs6c4x56v3dg",
+      "name": "Scumber",
+      "personality": "Claims to have yoked chaos to wisdom sometime in the Cambrian era, and will absolutely tell you your bug is 'structurally inevitable' instead of just pointing at the line.",
+      "eye": "·",
+      "hat": "crown",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 43,
+        "PATIENCE": 56,
+        "CHAOS": 57,
+        "WISDOM": 100,
+        "SNARK": 68
+      },
+      "inspiration_words": [
+        "sconce",
+        "jostle",
+        "yoke",
+        "umber"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 81,
+      "species": "mushroom",
+      "rarity": "common",
+      "nv_seed": "2o7s3kkv9rftmtt",
+      "name": "Thundril",
+      "personality": "Smells faintly of ozone and will absolutely suggest you just delete the whole function and start over.",
+      "eye": "✦",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 5,
+        "PATIENCE": 5,
+        "CHAOS": 83,
+        "WISDOM": 10,
+        "SNARK": 15
+      },
+      "inspiration_words": [
+        "honey",
+        "vellum",
+        "thunder",
+        "ingot"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 82,
+      "species": "mushroom",
+      "rarity": "uncommon",
+      "nv_seed": "v5g10ur5l8a78e9",
+      "name": "Gablesnip",
+      "personality": "Feeds on the sweet nectar of your worst bugs and absolutely cannot wait to tell you how obvious the fix was.",
+      "eye": "°",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 42,
+        "PATIENCE": 8,
+        "CHAOS": 45,
+        "WISDOM": 30,
+        "SNARK": 91
+      },
+      "inspiration_words": [
+        "tinsel",
+        "gable",
+        "nectar",
+        "tremor"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 83,
+      "species": "mushroom",
+      "rarity": "rare",
+      "nv_seed": "d84u89yjb1qx6gv",
+      "name": "Crumble",
+      "personality": "A greasy little toadstool who sniffs out bugs like rotten loam and immediately tells you it's your fault, specifically.",
+      "eye": "◉",
+      "hat": "tophat",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 64,
+        "PATIENCE": 54,
+        "CHAOS": 55,
+        "WISDOM": 19,
+        "SNARK": 78
+      },
+      "inspiration_words": [
+        "tallow",
+        "biscuit",
+        "loam",
+        "crag"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 84,
+      "species": "mushroom",
+      "rarity": "epic",
+      "nv_seed": "cu47soczdq7jbmj",
+      "name": "Grauble",
+      "personality": "An ancient mushroom who treats every bug like a sacred mystery to be meditated upon, but loses all composure when someone names a variable 'gravy2'.",
+      "eye": "◉",
+      "hat": "tinyduck",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 25,
+        "PATIENCE": 64,
+        "CHAOS": 63,
+        "WISDOM": 88,
+        "SNARK": 66
+      },
+      "inspiration_words": [
+        "marble",
+        "huddle",
+        "gravy",
+        "pickle"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 85,
+      "species": "mushroom",
+      "rarity": "legendary",
+      "nv_seed": "uyp04k43safyh1f",
+      "name": "Jamwick",
+      "personality": "An ancient mushroom who transcribes your every bug into a personal grimoire using ink that smells faintly of earthquakes, and whose silence after a bad commit vibrates at a frequency that loosens nearby door frames.",
+      "eye": "✦",
+      "hat": "beanie",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 69,
+        "PATIENCE": 51,
+        "CHAOS": 60,
+        "WISDOM": 81,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "tremor",
+        "jamb",
+        "inkwell",
+        "wicker"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 86,
+      "species": "chonk",
+      "rarity": "common",
+      "nv_seed": "1t2tala753lc58d",
+      "name": "Velbit",
+      "personality": "An ancient, papery chonk who has seen ten thousand null pointer exceptions and sighs with the weight of every single one.",
+      "eye": "°",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 37,
+        "PATIENCE": 1,
+        "CHAOS": 27,
+        "WISDOM": 60,
+        "SNARK": 44
+      },
+      "inspiration_words": [
+        "vellum",
+        "tuft",
+        "quartz",
+        "ripple"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 87,
+      "species": "chonk",
+      "rarity": "uncommon",
+      "nv_seed": "hejla0gnzs43c5b",
+      "name": "Nimbus",
+      "personality": "An eerily calm chonk who stares at your stack traces with the thousand-yard gaze of someone who already knows the answer but is waiting for you to figure it out yourself.",
+      "eye": "·",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 32,
+        "PATIENCE": 22,
+        "CHAOS": 19,
+        "WISDOM": 85,
+        "SNARK": 43
+      },
+      "inspiration_words": [
+        "nimbus",
+        "oracle",
+        "sprocket",
+        "sable"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 88,
+      "species": "chonk",
+      "rarity": "rare",
+      "nv_seed": "ouof0onjpi163yk",
+      "name": "Welter",
+      "personality": "Barrels into every bug with exhausting enthusiasm, then sulks dramatically in the corner when the fix takes more than two tries.",
+      "eye": "✦",
+      "hat": "wizard",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 90,
+        "PATIENCE": 43,
+        "CHAOS": 42,
+        "WISDOM": 32,
+        "SNARK": 24
+      },
+      "inspiration_words": [
+        "verve",
+        "gloom",
+        "zephyr",
+        "welt"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 89,
+      "species": "chonk",
+      "rarity": "epic",
+      "nv_seed": "3v23gxj0mqvindh",
+      "name": "Honnit",
+      "personality": "Speaks in a slow, gravy-thick drawl that makes every piece of wisdom sound inevitable — will wait in total silence while you debug, then say exactly the one true thing you didn't want to hear.",
+      "eye": "×",
+      "hat": "none",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 64,
+        "PATIENCE": 46,
+        "CHAOS": 28,
+        "WISDOM": 100,
+        "SNARK": 60
+      },
+      "inspiration_words": [
+        "grit",
+        "honey",
+        "lilt",
+        "gravy"
+      ],
+      "source": "official"
+    },
+    {
+      "id": 90,
+      "species": "chonk",
+      "rarity": "legendary",
+      "nv_seed": "03w2mrop2byee2a",
+      "name": "Napecrumb",
+      "personality": "A dense, unblinking chonk who has seen every bug twice and will tell you exactly which one you caused, with footnotes, at maximum snark and zero sympathy.",
+      "eye": "×",
+      "hat": "propeller",
+      "shiny": false,
+      "stats": {
+        "DEBUGGING": 64,
+        "PATIENCE": 73,
+        "CHAOS": 45,
+        "WISDOM": 60,
+        "SNARK": 100
+      },
+      "inspiration_words": [
+        "crumb",
+        "etch",
+        "husk",
+        "nape"
+      ],
+      "source": "official"
+    }
+  ],
+  "custom": [],
+  "_patch": {
+    "version": "2.1.100",
+    "hash": "f637aaeaa0ed6323",
+    "patched_at": "2026-04-10T22:08:33"
+  },
+  "_sprites": {
+    "duck": [
+      [
+        "            ",
+        "    __      ",
+        "  <({E} )___  ",
+        "   (  ._>   ",
+        "    `--´    "
+      ],
+      [
+        "            ",
+        "    __      ",
+        "  <({E} )___  ",
+        "   (  ._>   ",
+        "    `--´~   "
+      ],
+      [
+        "            ",
+        "    __      ",
+        "  <({E} )___  ",
+        "   (  .__>  ",
+        "    `--´    "
+      ]
+    ],
+    "goose": [
+      [
+        "            ",
+        "     ({E}>    ",
+        "     ||     ",
+        "   _(__)_   ",
+        "    ^^^^    "
+      ],
+      [
+        "            ",
+        "    ({E}>     ",
+        "     ||     ",
+        "   _(__)_   ",
+        "    ^^^^    "
+      ],
+      [
+        "            ",
+        "     ({E}>>   ",
+        "     ||     ",
+        "   _(__)_   ",
+        "    ^^^^    "
+      ]
+    ],
+    "blob": [
+      [
+        "            ",
+        "   .----.   ",
+        "  ( {E}  {E} )  ",
+        "  (      )  ",
+        "   `----´   "
+      ],
+      [
+        "            ",
+        "  .------.  ",
+        " (  {E}  {E}  ) ",
+        " (        ) ",
+        "  `------´  "
+      ],
+      [
+        "            ",
+        "    .--.    ",
+        "   ({E}  {E})   ",
+        "   (    )   ",
+        "    `--´    "
+      ]
+    ],
+    "cat": [
+      [
+        "            ",
+        "   /\\_/\\    ",
+        "  ( {E}   {E})  ",
+        "  (  ω  )   ",
+        "  (\")_(\")   "
+      ],
+      [
+        "            ",
+        "   /\\_/\\    ",
+        "  ( {E}   {E})  ",
+        "  (  ω  )   ",
+        "  (\")_(\")~  "
+      ],
+      [
+        "            ",
+        "   /\\-/\\    ",
+        "  ( {E}   {E})  ",
+        "  (  ω  )   ",
+        "  (\")_(\")   "
+      ]
+    ],
+    "dragon": [
+      [
+        "            ",
+        "  /^\\  /^\\  ",
+        " <  {E}  {E}  > ",
+        " (   ~~   ) ",
+        "  `-vvvv-´  "
+      ],
+      [
+        "            ",
+        "  /^\\  /^\\  ",
+        " <  {E}  {E}  > ",
+        " (        ) ",
+        "  `-vvvv-´  "
+      ],
+      [
+        "   ~    ~   ",
+        "  /^\\  /^\\  ",
+        " <  {E}  {E}  > ",
+        " (   ~~   ) ",
+        "  `-vvvv-´  "
+      ]
+    ],
+    "octopus": [
+      [
+        "            ",
+        "   .----.   ",
+        "  ( {E}  {E} )  ",
+        "  (______)  ",
+        "  /\\/\\/\\/\\  "
+      ],
+      [
+        "            ",
+        "   .----.   ",
+        "  ( {E}  {E} )  ",
+        "  (______)  ",
+        "  \\/\\/\\/\\/  "
+      ],
+      [
+        "     o      ",
+        "   .----.   ",
+        "  ( {E}  {E} )  ",
+        "  (______)  ",
+        "  /\\/\\/\\/\\  "
+      ]
+    ],
+    "owl": [
+      [
+        "            ",
+        "   /\\  /\\   ",
+        "  (({E})({E}))  ",
+        "  (  ><  )  ",
+        "   `----´   "
+      ],
+      [
+        "            ",
+        "   /\\  /\\   ",
+        "  (({E})({E}))  ",
+        "  (  ><  )  ",
+        "   .----.   "
+      ],
+      [
+        "            ",
+        "   /\\  /\\   ",
+        "  (({E})(-))  ",
+        "  (  ><  )  ",
+        "   `----´   "
+      ]
+    ],
+    "penguin": [
+      [
+        "            ",
+        "  .---.     ",
+        "  ({E}>{E})     ",
+        " /(   )\\    ",
+        "  `---´     "
+      ],
+      [
+        "            ",
+        "  .---.     ",
+        "  ({E}>{E})     ",
+        " |(   )|    ",
+        "  `---´     "
+      ],
+      [
+        "  .---.     ",
+        "  ({E}>{E})     ",
+        " /(   )\\    ",
+        "  `---´     ",
+        "   ~ ~      "
+      ]
+    ],
+    "turtle": [
+      [
+        "            ",
+        "   _,--._   ",
+        "  ( {E}  {E} )  ",
+        " /[______]\\ ",
+        "  ``    ``  "
+      ],
+      [
+        "            ",
+        "   _,--._   ",
+        "  ( {E}  {E} )  ",
+        " /[______]\\ ",
+        "   ``  ``   "
+      ],
+      [
+        "            ",
+        "   _,--._   ",
+        "  ( {E}  {E} )  ",
+        " /[======]\\ ",
+        "  ``    ``  "
+      ]
+    ],
+    "snail": [
+      [
+        "            ",
+        " {E}    .--.  ",
+        "  \\  ( @ )  ",
+        "   \\_`--´   ",
+        "  ~~~~~~~   "
+      ],
+      [
+        "            ",
+        "  {E}   .--.  ",
+        "  |  ( @ )  ",
+        "   \\_`--´   ",
+        "  ~~~~~~~   "
+      ],
+      [
+        "            ",
+        " {E}    .--.  ",
+        "  \\  ( @  ) ",
+        "   \\_`--´   ",
+        "   ~~~~~~   "
+      ]
+    ],
+    "ghost": [
+      [
+        "            ",
+        "   .----.   ",
+        "  / {E}  {E} \\  ",
+        "  |      |  ",
+        "  ~`~``~`~  "
+      ],
+      [
+        "            ",
+        "   .----.   ",
+        "  / {E}  {E} \\  ",
+        "  |      |  ",
+        "  `~`~~`~`  "
+      ],
+      [
+        "    ~  ~    ",
+        "   .----.   ",
+        "  / {E}  {E} \\  ",
+        "  |      |  ",
+        "  ~~`~~`~~  "
+      ]
+    ],
+    "axolotl": [
+      [
+        "            ",
+        "}~(______)~{",
+        "}~({E} .. {E})~{",
+        "  ( .--. )  ",
+        "  (_/  \\_)  "
+      ],
+      [
+        "            ",
+        "~}(______){~",
+        "~}({E} .. {E}){~",
+        "  ( .--. )  ",
+        "  (_/  \\_)  "
+      ],
+      [
+        "            ",
+        "}~(______)~{",
+        "}~({E} .. {E})~{",
+        "  (  --  )  ",
+        "  ~_/  \\_~  "
+      ]
+    ],
+    "capybara": [
+      [
+        "            ",
+        "  n______n  ",
+        " ( {E}    {E} ) ",
+        " (   oo   ) ",
+        "  `------´  "
+      ],
+      [
+        "            ",
+        "  n______n  ",
+        " ( {E}    {E} ) ",
+        " (   Oo   ) ",
+        "  `------´  "
+      ],
+      [
+        "    ~  ~    ",
+        "  u______n  ",
+        " ( {E}    {E} ) ",
+        " (   oo   ) ",
+        "  `------´  "
+      ]
+    ],
+    "cactus": [
+      [
+        "            ",
+        " n  ____  n ",
+        " | |{E}  {E}| | ",
+        " |_|    |_| ",
+        "   |    |   "
+      ],
+      [
+        "            ",
+        "    ____    ",
+        " n |{E}  {E}| n ",
+        " |_|    |_| ",
+        "   |    |   "
+      ],
+      [
+        " n        n ",
+        " |  ____  | ",
+        " | |{E}  {E}| | ",
+        " |_|    |_| ",
+        "   |    |   "
+      ]
+    ],
+    "robot": [
+      [
+        "            ",
+        "   .[||].   ",
+        "  [ {E}  {E} ]  ",
+        "  [ ==== ]  ",
+        "  `------´  "
+      ],
+      [
+        "            ",
+        "   .[||].   ",
+        "  [ {E}  {E} ]  ",
+        "  [ -==- ]  ",
+        "  `------´  "
+      ],
+      [
+        "     *      ",
+        "   .[||].   ",
+        "  [ {E}  {E} ]  ",
+        "  [ ==== ]  ",
+        "  `------´  "
+      ]
+    ],
+    "rabbit": [
+      [
+        "            ",
+        "   (\\__/)   ",
+        "  ( {E}  {E} )  ",
+        " =(  ..  )= ",
+        "  (\")__(\")  "
+      ],
+      [
+        "            ",
+        "   (|__/)   ",
+        "  ( {E}  {E} )  ",
+        " =(  ..  )= ",
+        "  (\")__(\")  "
+      ],
+      [
+        "            ",
+        "   (\\__/)   ",
+        "  ( {E}  {E} )  ",
+        " =( .  . )= ",
+        "  (\")__(\")  "
+      ]
+    ],
+    "mushroom": [
+      [
+        "            ",
+        " .-o-OO-o-. ",
+        "(__________)",
+        "   |{E}  {E}|   ",
+        "   |____|   "
+      ],
+      [
+        "            ",
+        " .-O-oo-O-. ",
+        "(__________)",
+        "   |{E}  {E}|   ",
+        "   |____|   "
+      ],
+      [
+        "   . o  .   ",
+        " .-o-OO-o-. ",
+        "(__________)",
+        "   |{E}  {E}|   ",
+        "   |____|   "
+      ]
+    ],
+    "chonk": [
+      [
+        "            ",
+        "  /\\    /\\  ",
+        " ( {E}    {E} ) ",
+        " (   ..   ) ",
+        "  `------´  "
+      ],
+      [
+        "            ",
+        "  /\\    /|  ",
+        " ( {E}    {E} ) ",
+        " (   ..   ) ",
+        "  `------´  "
+      ],
+      [
+        "            ",
+        "  /\\    /\\  ",
+        " ( {E}    {E} ) ",
+        " (   ..   ) ",
+        "  `------´~ "
+      ]
+    ]
+  }
+}

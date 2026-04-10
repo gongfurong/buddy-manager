@@ -1,5 +1,4 @@
 # Personal config — contains account UUID, exe hash, local preferences
-buddy_config.json
 
 # Python
 __pycache__/

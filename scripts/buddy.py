@@ -1013,6 +1013,7 @@ def simple_restart():
 # ─────────────────────────────────────────────
 # ASCII art sprite extraction & rendering
 # ─────────────────────────────────────────────
+
 _SPRITE_CACHE = None
 
 def _load_sprites():
@@ -1020,24 +1021,37 @@ def _load_sprites():
     if _SPRITE_CACHE is not None:
         return _SPRITE_CACHE
     exe = find_exe()
-    if not exe:
-        _SPRITE_CACHE = []
-        return _SPRITE_CACHE
-    with open(exe, 'rb') as f:
-        content = f.read()
-    # Sprites are stored as JS arrays of strings near the species name constants
-    # Anchor: "beanie" hat data is ~8KB before the sprite arrays
-    anchor = content.find(b'`-vvvv-')  # unique dragon tail
-    if anchor < 0:
-        _SPRITE_CACHE = []
-        return _SPRITE_CACHE
-    region = content[anchor - 12000: anchor + 4000].decode('utf-8', errors='replace')
-    matches = list(re.finditer(r'\[\[.*?\]\]', region, re.DOTALL))
-    arts = []
-    for m in matches[:18]:
-        arts.append(_parse_sprite(m.group()))
-    _SPRITE_CACHE = arts
-    return arts
+    if exe:
+        try:
+            with open(exe, 'rb') as f:
+                content = f.read()
+            # Sprites are stored as JS arrays of strings near the species name constants
+            # Anchor: dragon tail marker unique to the buddy sprite block
+            anchor = content.find(b'`-vvvv-')  # unique dragon tail
+            if anchor >= 0:
+                region = content[anchor - 12000: anchor + 4000].decode('utf-8', errors='replace')
+                matches = list(re.finditer(r'\[\[.*?\]\]', region, re.DOTALL))
+                arts = []
+                for m in matches[:18]:
+                    arts.append(_parse_sprite(m.group()))
+                if len(arts) == 18:
+                    _SPRITE_CACHE = arts
+                    # Sync freshly extracted sprites back to config
+                    try:
+                        cfg = load_config()
+                        fresh = {sp: arts[i] for i, sp in enumerate(SPECIES)}
+                        if cfg.get('_sprites') != fresh:
+                            cfg['_sprites'] = fresh
+                            save_config(cfg)
+                    except Exception:
+                        pass
+                    return arts
+        except OSError:
+            pass
+    # Fallback: use sprites stored in buddy_config.json
+    cfg_sprites = load_config().get('_sprites', {})
+    _SPRITE_CACHE = [cfg_sprites.get(sp, []) for sp in SPECIES]
+    return _SPRITE_CACHE
 
 def _parse_sprite(raw):
     """Parse JS string array like [["line1","line2",...],[...]] into list of frame line-lists."""
